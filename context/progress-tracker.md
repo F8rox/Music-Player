@@ -61,7 +61,8 @@ Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by 
 | Input | Where | Why | Unblocks |
 |-------|-------|-----|----------|
 | Free-licensed demo tracks (5–8, CC0 or CC-BY) with their licence links | `public/songs/` + `CREDITS.md` | The commercial mp3s can't be published | Unit 07 last criterion, Unit 15 deploy |
-| 5 songs with known BPM (for the accuracy table) | any local files | Proves the tempo detection on real music | Unit 10 real-song criterion |
+| 5 songs with known BPM (for the accuracy table) | any local files | Proves the tempo detection on real music | Unit 10 real-song criterion. **Partly provided 2026-10-12:** the owner's test files are in `D:\DAD songs` (outside the repo; never commit them). Payphone and Beggin' are usable references if they're the original versions (published ~110 and ~134 BPM; confirm by tap test). The three "sped up" files have unknown tempos: use them for import and half/double stress tests only. Still need 3 more songs with a reliable BPM. |
+| Test files for import | `D:\DAD songs` (5 mp3s) | Unit 07 import, dedupe and refresh tests | provided 2026-10-12 |
 
 ## Session Notes
 - 2026-10-12: Specs rewritten for bring-your-own-music + Auto-DJ (overview, architecture, security, design, code standards, 9 feature specs, prompts 1C–2C).
