@@ -69,6 +69,7 @@ export const MusicProvider = ({ children }) => {
       notify("Added to queue");
     },
     removeFromQueue: (qid) => setQueue((q) => Q.remove(q, qid)),
+    moveInQueue: (qid, toIndex) => setQueue((q) => Q.move(q, qid, toIndex)),
     // shortcut: always wraps (repeat "all") until Unit 06 adds the repeat toggle.
     nextTrack: () => setQueue((q) => Q.next(q, "all").queue),
     // Returns false at the first item so the player restarts the track instead.

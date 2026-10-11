@@ -42,6 +42,16 @@ export const insertNext = (queue, songId, qid = newQid()) =>
 export const append = (queue, songId, qid = newQid()) =>
   insertAt(queue, queue.items.length, songId, qid);
 
+// The current item may move too: currentQid is unchanged, so playback carries on.
+export const move = (queue, fromQid, toIndex) => {
+  const from = queue.items.findIndex((item) => item.qid === fromQid);
+  const to = Math.max(0, Math.min(toIndex, queue.items.length - 1));
+  if (from < 0 || from === to) return queue;
+  const items = [...queue.items];
+  items.splice(to, 0, ...items.splice(from, 1));
+  return { ...queue, items: renumber(items) };
+};
+
 // The current item can't be removed; that would silently change what's playing.
 export const remove = (queue, qid) => {
   if (qid === queue.currentQid) return queue;

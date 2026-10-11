@@ -1,14 +1,16 @@
 import { useEffect, useRef } from "react";
 import { useMusic } from "../state/useMusic";
 import { SongRow } from "./SongRow";
+import { SortableList } from "./SortableList";
 
 export const QueuePanel = ({ onClose }) => {
-  const { queue, currentQid, songById, durations, playQid, removeFromQueue } = useMusic();
+  const { queue, currentQid, songById, durations, playQid, removeFromQueue, moveInQueue } = useMusic();
   const closeRef = useRef(null);
 
   useEffect(() => {
     closeRef.current.focus();
-    const onKey = (e) => e.key === "Escape" && onClose();
+    // While a keyboard drag is active its handle has aria-pressed="true"; Esc then cancels the drag.
+    const onKey = (e) => e.key === "Escape" && !e.target.closest?.('[aria-pressed="true"]') && onClose();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
@@ -26,33 +28,35 @@ export const QueuePanel = ({ onClose }) => {
         {queue.items.length === 0 ? (
           <p className="empty-message">Nothing queued</p>
         ) : (
-          <ul className="song-list">
-            {queue.items.map((item, index) => {
+          <SortableList
+            items={queue.items}
+            getId={(item) => item.qid}
+            getLabel={(item) => songById(item.songId).title}
+            onMove={moveInQueue}
+            renderItem={(item, index) => {
               const song = songById(item.songId);
               const active = item.qid === currentQid;
               return (
-                <li key={item.qid}>
-                  <SongRow
-                    song={song}
-                    index={index}
-                    duration={durations[song.id]}
-                    active={active}
-                    onPlay={() => playQid(item.qid)}
-                    actions={!active && (
-                      <button
-                        type="button"
-                        className="control-btn"
-                        aria-label={`Remove ${song.title} from queue`}
-                        onClick={() => removeFromQueue(item.qid)}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  />
-                </li>
+                <SongRow
+                  song={song}
+                  index={index}
+                  duration={durations[song.id]}
+                  active={active}
+                  onPlay={() => playQid(item.qid)}
+                  actions={!active && (
+                    <button
+                      type="button"
+                      className="control-btn"
+                      aria-label={`Remove ${song.title} from queue`}
+                      onClick={() => removeFromQueue(item.qid)}
+                    >
+                      ✕
+                    </button>
+                  )}
+                />
               );
-            })}
-          </ul>
+            }}
+          />
         )}
       </aside>
     </>

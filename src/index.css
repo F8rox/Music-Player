@@ -247,6 +247,38 @@ h2 {
   cursor: default;
 }
 
+/* ---------- Sortable list ---------- */
+.sortable-row {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-radius: var(--radius-sm);
+  transform: var(--drag-transform);
+  transition: var(--drag-transition);
+}
+
+.sortable-row > .song-row {
+  flex: 1;
+  min-width: 0;
+}
+
+.sortable-row.dragging {
+  z-index: 1;
+  background: var(--surface-raised);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.drag-handle {
+  padding: var(--space-2) var(--space-1);
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragging .drag-handle {
+  cursor: grabbing;
+}
+
 /* ---------- Song menu ---------- */
 .song-menu {
   position: relative;

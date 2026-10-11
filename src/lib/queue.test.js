@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { append, current, emptyQueue, fromList, insertNext, next, prev, remove } from "./queue";
+import { append, current, emptyQueue, fromList, insertNext, move, next, prev, remove } from "./queue";
 
 const ids = () => {
   let n = 0;
@@ -108,5 +108,38 @@ describe("remove", () => {
   it("refuses to remove the current item", () => {
     const queue = build(0);
     expect(remove(queue, queue.currentQid)).toBe(queue);
+  });
+});
+
+describe("move", () => {
+  it("moves an item up", () => {
+    const queue = build(0);
+    expect(songsOf(move(queue, queue.items[2].qid, 0))).toEqual(["c", "a", "b"]);
+  });
+
+  it("moves an item down and renumbers order", () => {
+    const queue = build(0);
+    const moved = move(queue, queue.items[0].qid, 2);
+    expect(songsOf(moved)).toEqual(["b", "c", "a"]);
+    expect(moved.items.map((item) => item.order)).toEqual([0, 1, 2]);
+  });
+
+  it("is a no-op for the same index or an unknown qid", () => {
+    const queue = build(0);
+    expect(move(queue, queue.items[1].qid, 1)).toBe(queue);
+    expect(move(queue, "nope", 0)).toBe(queue);
+  });
+
+  it("keeps the current item current when it moves", () => {
+    const queue = build(0);
+    const moved = move(queue, queue.currentQid, 2);
+    expect(current(moved).songId).toBe("a");
+    expect(next(moved, "all").queue.currentQid).toBe(moved.items[0].qid);
+  });
+
+  it("clamps an out-of-range index", () => {
+    const queue = build(0);
+    expect(songsOf(move(queue, queue.items[0].qid, 99))).toEqual(["b", "c", "a"]);
+    expect(songsOf(move(queue, queue.items[2].qid, -5))).toEqual(["c", "a", "b"]);
   });
 });
