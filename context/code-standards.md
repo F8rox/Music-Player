@@ -60,6 +60,7 @@ src/
   state/
     MusicProvider.jsx         context, actions, persistence, duration probing
     useMusic.js               useContext wrapper
+    useDurations.js           metadata probe for song durations
   components/
     Navbar.jsx  PlayerBar.jsx  QueuePanel.jsx  SortableList.jsx
     SongRow.jsx  SongMenu.jsx  Notice.jsx

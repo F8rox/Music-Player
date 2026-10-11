@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Navbar } from "./components/Navbar";
+import { Notice } from "./components/Notice";
 import { PlayerBar } from "./components/PlayerBar";
 import { QueuePanel } from "./components/QueuePanel";
 import { AllSongs } from "./pages/AllSongs";
@@ -29,6 +30,7 @@ function App() {
           </main>
           {queueOpen && <QueuePanel onClose={closeQueue} />}
         </div>
+        <Notice />
         <PlayerBar
           queueOpen={queueOpen}
           onToggleQueue={() => setQueueOpen(!queueOpen)}

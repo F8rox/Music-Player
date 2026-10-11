@@ -1,53 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { songs } from "../data/songs";
+import * as Q from "../lib/queue";
+import { load, save } from "../lib/storage";
 import { MusicContext } from "./useMusic";
+import { useDurations } from "./useDurations";
 
-const step = (id, delta) => {
-  const index = songs.findIndex((song) => song.id === id);
-  return songs[(index + delta + songs.length) % songs.length].id;
-};
+const songIds = new Set(songs.map((song) => song.id));
+const songById = (id) => songs.find((song) => song.id === id) ?? null;
 
 export const MusicProvider = ({ children }) => {
-  const [currentId, setCurrentId] = useState(songs[0].id);
+  const [saved] = useState(() => load(songIds));
+  const [queue, setQueue] = useState(saved.queue);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [durations, setDurations] = useState({});
+  const [volume, setVolume] = useState(saved.volume);
+  const [notice, setNotice] = useState(null);
+  const durations = useDurations(songs);
+  const saveFailed = useRef(false);
+
+  const notify = (text) => setNotice({ text, id: Date.now() });
+  const savedSecond = Math.floor(currentTime);
 
   useEffect(() => {
-    let cancelled = false;
-    const probe = new Audio();
-    probe.preload = "metadata";
-    const release = () => {
-      probe.onloadedmetadata = probe.onerror = null;
-      probe.removeAttribute("src");
-      probe.load();
-    };
-    const run = async () => {
-      // One file at a time so startup doesn't open five parallel downloads.
-      for (const song of songs) {
-        const duration = await new Promise((resolve) => {
-          probe.onloadedmetadata = () => resolve(probe.duration);
-          probe.onerror = () => resolve(null);
-          probe.src = song.url;
-        });
-        if (cancelled) return;
-        setDurations((prev) => ({ ...prev, [song.id]: duration }));
-      }
-      release();
-    };
-    run();
-    return () => {
-      cancelled = true;
-      release();
-    };
-  }, []);
+    const timer = setTimeout(() => {
+      if (save({ queue, volume, position: savedSecond }) || saveFailed.current) return;
+      saveFailed.current = true;
+      setNotice({ text: "Couldn't save. Changes will be lost on refresh.", id: Date.now() });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [queue, volume, savedSecond]);
+
+  const item = Q.current(queue);
 
   const value = {
     songs,
     durations,
-    currentTrack: songs.find((song) => song.id === currentId),
+    songById,
+    queue,
+    currentQid: queue.currentQid,
+    currentTrack: item && songById(item.songId),
+    restorePosition: saved.position,
     currentTime,
     setCurrentTime,
     duration,
@@ -56,12 +49,34 @@ export const MusicProvider = ({ children }) => {
     setIsPlaying,
     volume,
     setVolume,
-    playSong: (id) => {
-      setCurrentId(id);
+    notice,
+    playFromList: (ids, index) => {
+      setQueue(Q.fromList(ids, index));
       setIsPlaying(true);
     },
-    nextTrack: () => setCurrentId((id) => step(id, 1)),
-    prevTrack: () => setCurrentId((id) => step(id, -1)),
+    playQid: (qid) => {
+      setQueue((q) => ({ ...q, currentQid: qid }));
+      setIsPlaying(true);
+    },
+    playNext: (songId) => {
+      const qid = Q.newQid();
+      setQueue((q) => Q.insertNext(q, songId, qid));
+      notify("Playing next");
+    },
+    addToQueue: (songId) => {
+      const qid = Q.newQid();
+      setQueue((q) => Q.append(q, songId, qid));
+      notify("Added to queue");
+    },
+    removeFromQueue: (qid) => setQueue((q) => Q.remove(q, qid)),
+    // shortcut: always wraps (repeat "all") until Unit 06 adds the repeat toggle.
+    nextTrack: () => setQueue((q) => Q.next(q, "all").queue),
+    // Returns false at the first item so the player restarts the track instead.
+    prevTrack: () => {
+      const previous = Q.prev(queue);
+      setQueue(previous);
+      return previous !== queue;
+    },
   };
 
   return <MusicContext.Provider value={value}>{children}</MusicContext.Provider>;

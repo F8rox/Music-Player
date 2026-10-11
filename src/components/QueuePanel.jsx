@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
+import { useMusic } from "../state/useMusic";
+import { SongRow } from "./SongRow";
 
 export const QueuePanel = ({ onClose }) => {
+  const { queue, currentQid, songById, durations, playQid, removeFromQueue } = useMusic();
   const closeRef = useRef(null);
 
   useEffect(() => {
@@ -20,7 +23,37 @@ export const QueuePanel = ({ onClose }) => {
             ✕
           </button>
         </div>
-        <p className="empty-message">Nothing queued</p>
+        {queue.items.length === 0 ? (
+          <p className="empty-message">Nothing queued</p>
+        ) : (
+          <ul className="song-list">
+            {queue.items.map((item, index) => {
+              const song = songById(item.songId);
+              const active = item.qid === currentQid;
+              return (
+                <li key={item.qid}>
+                  <SongRow
+                    song={song}
+                    index={index}
+                    duration={durations[song.id]}
+                    active={active}
+                    onPlay={() => playQid(item.qid)}
+                    actions={!active && (
+                      <button
+                        type="button"
+                        className="control-btn"
+                        aria-label={`Remove ${song.title} from queue`}
+                        onClick={() => removeFromQueue(item.qid)}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </aside>
     </>
   );

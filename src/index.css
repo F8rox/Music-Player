@@ -114,16 +114,25 @@ h2 {
 }
 
 .song-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-right: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background 150ms ease;
+}
+
+.song-play {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 2rem 1fr auto;
   align-items: center;
   gap: var(--space-3);
-  width: 100%;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   text-align: left;
   font-size: 0.875rem;
-  transition: background 150ms ease;
 }
 
 .song-row:hover {
@@ -231,6 +240,59 @@ h2 {
 
 .control-btn:hover {
   background: var(--surface-raised);
+}
+
+.control-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- Song menu ---------- */
+.song-menu {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: var(--space-1);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.menu [role="menuitem"] {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.menu [role="menuitem"]:hover {
+  background: var(--border);
+}
+
+/* ---------- Notice ---------- */
+.notice {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--player-height) + var(--space-4));
+  transform: translateX(-50%);
+  z-index: 40;
+}
+
+.notice span {
+  display: block;
+  padding: var(--space-2) var(--space-4);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
 }
 
 .control-btn[aria-expanded="true"] {

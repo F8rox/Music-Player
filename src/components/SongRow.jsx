@@ -7,13 +7,17 @@ const durationLabel = (duration) => {
   return formatTime(duration);
 };
 
-export const SongRow = ({ song, index, duration, active, onPlay }) => (
-  <button type="button" className={`song-row${active ? " active" : ""}`} onClick={onPlay}>
-    <span className="song-index" aria-hidden="true">{active ? "♪" : index + 1}</span>
-    <span className="song-text">
-      <span className="song-title">{song.title}</span>
-      <span className="song-artist">{song.artist}</span>
-    </span>
-    <span className="song-duration">{durationLabel(duration)}</span>
-  </button>
+// `actions` sits beside the play button: buttons can't be nested inside buttons.
+export const SongRow = ({ song, index, duration, active, onPlay, actions }) => (
+  <div className={`song-row${active ? " active" : ""}`}>
+    <button type="button" className="song-play" onClick={onPlay}>
+      <span className="song-index" aria-hidden="true">{active ? "♪" : index + 1}</span>
+      <span className="song-text">
+        <span className="song-title">{song.title}</span>
+        <span className="song-artist">{song.artist}</span>
+      </span>
+      <span className="song-duration">{durationLabel(duration)}</span>
+    </button>
+    {actions}
+  </div>
 );

@@ -1,8 +1,10 @@
+import { SongMenu } from "../components/SongMenu";
 import { SongRow } from "../components/SongRow";
 import { useMusic } from "../state/useMusic";
 
 export const AllSongs = () => {
-  const { songs, durations, currentTrack, playSong } = useMusic();
+  const { songs, durations, currentTrack, playFromList } = useMusic();
+  const ids = songs.map((song) => song.id);
   return (
     <section>
       <h2>All Songs ({songs.length})</h2>
@@ -13,8 +15,9 @@ export const AllSongs = () => {
               song={song}
               index={index}
               duration={durations[song.id]}
-              active={song.id === currentTrack.id}
-              onPlay={() => playSong(song.id)}
+              active={song.id === currentTrack?.id}
+              onPlay={() => playFromList(ids, index)}
+              actions={<SongMenu song={song} />}
             />
           </li>
         ))}
