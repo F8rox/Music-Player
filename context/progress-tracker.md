@@ -9,13 +9,13 @@ The app is a Vite + React tutorial-stage player. Checked on 2026-10-12:
 - `npm test`: no test script exists.
 - Playback: only song 1 has a URL. Songs 2 to 5 have `url: ""`.
 - Playlists page is a stub. `src/index.css` already holds unused playlist and modal styles from a tutorial, which Unit 02 replaces.
-- Git: initialised, nothing committed yet.
+- Git: initialised. Context and the untouched baseline app are committed. The project was moved to `D:\music player` on 2026-10-12.
 
 ## Units
 
 | Unit | Status | Evidence |
 |------|--------|----------|
-| 01 Foundation fixes | Not started | |
+| 01 Foundation fixes | Done | lint 0 problems; `npm test` 8/8 (format.test.js); build ok; `npm audit --audit-level=high` 0 (after `npm audit fix`, which cleared 9 pre-existing highs). Browser walk on 127.0.0.1:5199: all 5 songs clicked, each `audio.paused=false`, src/title/active card match. Prev on song 1 → "Into You", Next → "I Wanna Be Yours" (one step each, StrictMode on). Seek click → audio 92.7s, label 1:32. Seek and volume pass `Number()` (code). Negative: song 2 → missing.mp3, so MediaError 4, button back to ▶, no console errors, then reverted. grep finds no react-router-dom, console.log or tracl. |
 | 02 Tokens and app shell | Not started | |
 | 03 Real durations | Not started | |
 | 04 Queue | Not started | |
@@ -28,7 +28,9 @@ The app is a Vite + React tutorial-stage player. Checked on 2026-10-12:
 None.
 
 ## Next Up
-Prompt 1A (Units 01, 02, 03) in `build-prompts.md`.
+Unit 02 (Prompt 1A continues).
+
+Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by another local project.
 
 ## Open Questions
 1. **mp3s in git:** the bundled songs are commercial recordings, so they're gitignored by default and a fresh clone has no audio. Should they be committed instead, given the repo stays private? Owner to decide.

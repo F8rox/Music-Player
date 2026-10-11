@@ -1,29 +1,29 @@
-import { useMusic } from "../hooks/useMusic";
+import { useMusic } from "../state/useMusic";
 
-export const AllSongs = ({music}) => {
-    const {allSongs, handlePlaySong, currentTrackIndex, } = music;
-    return (
-        <div className="all-songs">
-            <h2>All Songs({allSongs.length})</h2>
-            <div className="songs-grid">
-                {allSongs.map((song, key) => (
-
-                    <div key={key} className={`song-card ${currentTrackIndex === key ? "active": " "}`}
-                    onClick={() => handlePlaySong(song,key)}>
-
-                        <div className="song-info">
-                            <h3 className="song-title">{song.title}</h3>
-                            <p className="song-artist">{song.artist}</p>
-                            <span className="song-duration">{song.duration}</span>
-                        </div>
-                        <div className="play-button">
-                            {currentTrackIndex === key ? "♪" : "▶"}
-                        </div>
-                    </div>
-                           
-                ))}
-            </div>
-        </div>
-    )
-    return <div>All Songs</div>;
+export const AllSongs = () => {
+  const { songs, currentTrack, playSong } = useMusic();
+  return (
+    <div className="all-songs">
+      <h2>All Songs ({songs.length})</h2>
+      <div className="songs-grid">
+        {songs.map((song) => {
+          const active = song.id === currentTrack.id;
+          return (
+            <button
+              key={song.id}
+              type="button"
+              className={`song-card${active ? " active" : ""}`}
+              onClick={() => playSong(song.id)}
+            >
+              <div className="song-info">
+                <h3 className="song-title">{song.title}</h3>
+                <p className="song-artist">{song.artist}</p>
+              </div>
+              <div className="play-button" aria-hidden="true">{active ? "♪" : "▶"}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 };

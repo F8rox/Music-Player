@@ -1,16 +1,20 @@
-# React + Vite
+# Music Player
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser music player for local mp3s, with a YouTube Music-style queue. Built spec-first: see [AGENTS.md](AGENTS.md) and [context/](context/).
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+```
 
-## React Compiler
+Put the mp3s in `public/songs/` (they are gitignored). The file names are listed in `src/data/songs.js`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Commands
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Command | What it does |
+|---------|--------------|
+| `npm run dev` | start the dev server |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest |
+| `npm run build` | production build to `dist/` |
