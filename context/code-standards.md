@@ -63,7 +63,7 @@ src/
       analysis.worker.js      DSP entry point
       dsp.js  dsp.test.js     pure DSP: rms, intro/outro, onset, bpm
   state/
-    MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js  useSongUrl.js
+    MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js  useSongUrl.js  usePlaylists.js
   components/
     Navbar  PlayerBar  QueuePanel  SortableList  SongRow  SongMenu  Notice
     ImportButton  ImportPanel  DropZone  Visualiser  SettingsPopover  TempoDialog  ConfirmDialog

@@ -627,3 +627,93 @@ h2 {
 .loading {
   padding: var(--space-6);
 }
+
+/* ---------- Playlists ---------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.text-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 360px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.text-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.form-error {
+  min-height: 1.25rem;
+  margin: var(--space-1) 0;
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
+.inline-form .form-error {
+  flex-basis: 100%;
+}
+
+.playlist-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.playlist-link {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.playlist-link:hover {
+  background: var(--surface-raised);
+}
+
+.playlist-header {
+  align-items: flex-start;
+}
+
+.section-title {
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: 1rem;
+}
+
+.add-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.menu .submenu-item {
+  padding-left: var(--space-6);
+}
+
+.menu-note {
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

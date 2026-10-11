@@ -7,6 +7,7 @@ import { Notice } from "./components/Notice";
 import { PlayerBar } from "./components/PlayerBar";
 import { QueuePanel } from "./components/QueuePanel";
 import { AllSongs } from "./pages/AllSongs";
+import { PlaylistDetail } from "./pages/PlaylistDetail";
 import { Playlists } from "./pages/Playlists";
 import { MusicProvider } from "./state/MusicProvider";
 
@@ -28,6 +29,7 @@ function App() {
             <Routes>
               <Route path="/" element={<AllSongs />} />
               <Route path="/playlists" element={<Playlists />} />
+              <Route path="/playlists/:id" element={<PlaylistDetail />} />
             </Routes>
           </main>
           {queueOpen && <QueuePanel onClose={closeQueue} />}

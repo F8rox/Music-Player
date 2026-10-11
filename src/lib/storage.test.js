@@ -14,8 +14,9 @@ const valid = {
   volume: 0.3,
   position: 42,
   repeat: "one",
+  playlists: [{ id: "p1", name: "Gym", songIds: ["1", "3"], createdAt: 7 }],
 };
-const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off" };
+const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off", playlists: [] };
 
 describe("parse", () => {
   it("round-trips valid state", () => {
@@ -32,7 +33,7 @@ describe("parse", () => {
 
   it("uses defaults per field for wrong types", () => {
     const result = parse(JSON.stringify({ ...valid, queue: "junk", volume: "loud" }), songIds);
-    expect(result).toEqual({ ...defaults, position: 42, repeat: "one" });
+    expect(result).toEqual({ ...defaults, position: 42, repeat: "one", playlists: valid.playlists });
   });
 
   it("drops unknown song ids and falls back to the first item", () => {
@@ -70,5 +71,23 @@ describe("parse", () => {
     const result = parse(text, songIds);
     expect(result.repeat).toBe("off");
     expect(result.queue.shuffled).toBe(false);
+  });
+
+  it("drops bad playlists, unknown song ids and duplicate ids", () => {
+    const playlists = [
+      { id: "p1", name: "Gym", songIds: ["1", "999", "1", "2"], createdAt: 1 },
+      { id: "p1", name: "Dup id", songIds: [], createdAt: 2 },
+      { id: "p2", name: "   ", songIds: [] },
+      { id: "p3", name: "No songs array", songIds: "1" },
+      { id: 5, name: "Bad id", songIds: [] },
+      "junk",
+      { id: "p4", name: "x".repeat(61), songIds: [] },
+    ];
+    const result = parse(JSON.stringify({ playlists }), songIds).playlists;
+    expect(result).toEqual([{ id: "p1", name: "Gym", songIds: ["1", "2"], createdAt: 1 }]);
+  });
+
+  it("uses an empty list when playlists isn't an array", () => {
+    expect(parse('{"playlists":"junk"}', songIds).playlists).toEqual([]);
   });
 });

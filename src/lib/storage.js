@@ -1,4 +1,5 @@
 // The only module that touches localStorage. Everything read back is untrusted.
+import { validateName } from "./playlists";
 const KEY = "musicPlayer:v1";
 const REPEAT_MODES = ["off", "all", "one"];
 
@@ -13,6 +14,20 @@ const parseQueue = (raw, songIds) => {
     .map(({ qid, songId, order }) => ({ qid, songId, order }));
   const currentQid = seen.has(raw.currentQid) ? raw.currentQid : (items[0]?.qid ?? null);
   return { items, currentQid, shuffled: raw.shuffled === true };
+};
+
+const parsePlaylists = (raw, songIds) => {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set();
+  return raw
+    .filter((p) => isObject(p) && typeof p.id === "string" && p.id.length <= 64 && !seen.has(p.id) && seen.add(p.id))
+    .map((p) => ({ id: p.id, name: validateName(p.name), songIds: p.songIds, createdAt: p.createdAt }))
+    .filter((p) => p.name && Array.isArray(p.songIds))
+    .map((p) => ({
+      ...p,
+      songIds: [...new Set(p.songIds.filter((id) => songIds.has(id)))],
+      createdAt: Number.isFinite(p.createdAt) ? p.createdAt : 0,
+    }));
 };
 
 const inRange = (value, min, max, fallback) =>
@@ -32,6 +47,7 @@ export const parse = (text, songIds) => {
     volume: inRange(data.volume, 0, 1, 0.5),
     position: inRange(data.position, 0, Number.MAX_SAFE_INTEGER, 0),
     repeat: REPEAT_MODES.includes(data.repeat) ? data.repeat : "off",
+    playlists: parsePlaylists(data.playlists, songIds),
   };
 };
 

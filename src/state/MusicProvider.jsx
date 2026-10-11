@@ -5,6 +5,7 @@ import { load, save } from "../lib/storage";
 import { MusicContext } from "./useMusic";
 import { useDurations } from "./useDurations";
 import { useLibrary } from "./useLibrary";
+import { usePlaylists } from "./usePlaylists";
 
 // The library must load before saved state is parsed, so stored ids can be checked against it.
 export const MusicProvider = ({ children }) => {
@@ -26,19 +27,21 @@ const PlayerState = ({ library, children }) => {
   const [notice, setNotice] = useState(() =>
     library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
   const probed = useDurations(bundled);
+  const notify = (text) => setNotice({ text, id: Date.now() });
+  const playlistState = usePlaylists(saved.playlists, notify);
+  const { playlists } = playlistState;
   const saveFailed = useRef(false);
 
-  const notify = (text) => setNotice({ text, id: Date.now() });
   const savedSecond = Math.floor(currentTime);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (save({ queue, volume, repeat, position: savedSecond }) || saveFailed.current) return;
+      if (save({ queue, volume, repeat, playlists, position: savedSecond }) || saveFailed.current) return;
       saveFailed.current = true;
       setNotice({ text: "Couldn't save. Changes will be lost on refresh.", id: Date.now() });
     }, 300);
     return () => clearTimeout(timer);
-  }, [queue, volume, repeat, savedSecond]);
+  }, [queue, volume, repeat, playlists, savedSecond]);
 
   const item = Q.current(queue);
 
@@ -50,6 +53,7 @@ const PlayerState = ({ library, children }) => {
   const value = {
     songs,
     songById,
+    ...playlistState,
     durationOf: (song) => probed[song.id] ?? song.durationSec,
     imports: library.imports,
     importing: library.busy,
@@ -59,6 +63,7 @@ const PlayerState = ({ library, children }) => {
       const nextQueue = Q.removeSong(queue, songId);
       setQueue(nextQueue);
       if (!nextQueue.currentQid) setIsPlaying(false);
+      playlistState.forgetSong(songId);
       await library.remove(songId);
       notify("Removed from your library");
     },
