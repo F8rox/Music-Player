@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { formatTime } from "../lib/format";
 import { useMusic } from "../state/useMusic";
+import { useSongUrl } from "../state/useSongUrl";
 
 export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
   const {
@@ -8,12 +9,14 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
     isPlaying, setIsPlaying, volume, setVolume, nextTrack, prevTrack, trackEnded,
     shuffled, toggleShuffle, repeat, cycleRepeat,
   } = useMusic();
+  const url = useSongUrl(currentTrack);
   const audioRef = useRef(null);
   const pendingSeek = useRef(restorePosition);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    // An imported song's object URL arrives async; play() before that would reject.
+    if (!audio || !url) return;
     audio.volume = volume;
     if (!isPlaying) {
       audio.pause();
@@ -21,7 +24,7 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
     }
     // AbortError just means a newer src replaced this play() call; that one is still playing.
     audio.play().catch((error) => error.name !== "AbortError" && setIsPlaying(false));
-  }, [isPlaying, currentQid, volume, setIsPlaying]);
+  }, [isPlaying, currentQid, url, volume, setIsPlaying]);
 
   const seek = (time) => {
     audioRef.current.currentTime = time;
@@ -56,7 +59,7 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
           // Keyed by queue entry so a duplicate song in the queue starts from 0.
           key={currentQid}
           ref={audioRef}
-          src={currentTrack.url}
+          src={url ?? undefined}
           preload="metadata"
           onLoadStart={() => {
             setCurrentTime(0);

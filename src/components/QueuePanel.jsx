@@ -4,7 +4,7 @@ import { SongRow } from "./SongRow";
 import { SortableList } from "./SortableList";
 
 export const QueuePanel = ({ onClose }) => {
-  const { queue, currentQid, songById, durations, playQid, removeFromQueue, moveInQueue } = useMusic();
+  const { queue, currentQid, songById, durationOf, playQid, removeFromQueue, moveInQueue } = useMusic();
   const closeRef = useRef(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export const QueuePanel = ({ onClose }) => {
                 <SongRow
                   song={song}
                   index={index}
-                  duration={durations[song.id]}
+                  duration={durationOf(song)}
                   active={active}
                   onPlay={() => playQid(item.qid)}
                   actions={!active && (

@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Navbar } from "./components/Navbar";
+import { DropZone } from "./components/DropZone";
+import { ImportPanel } from "./components/ImportPanel";
 import { Notice } from "./components/Notice";
 import { PlayerBar } from "./components/PlayerBar";
 import { QueuePanel } from "./components/QueuePanel";
@@ -30,6 +32,8 @@ function App() {
           </main>
           {queueOpen && <QueuePanel onClose={closeQueue} />}
         </div>
+        <DropZone />
+        <ImportPanel />
         <Notice />
         <PlayerBar
           queueOpen={queueOpen}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  afterEnded, append, current, emptyQueue, fromList, insertNext, move, next, prev, remove, shuffle, unshuffle,
+  afterEnded, append, current, emptyQueue, fromList, insertNext, move, next, prev, remove, removeSong, shuffle, unshuffle,
 } from "./queue";
 
 const ids = () => {
@@ -218,5 +218,33 @@ describe("afterEnded (repeat modes)", () => {
 
   it("the Next button still advances with repeat one (caller passes all)", () => {
     expect(current(next(build(1), "all").queue).songId).toBe("c");
+  });
+});
+describe("removeSong (library delete)", () => {
+  it("removes every copy of a non-current song", () => {
+    const queue = append(build(0), "b", "dup");
+    const result = removeSong(queue, "b");
+    expect(songsOf(result)).toEqual(["a", "c"]);
+    expect(result.currentQid).toBe(queue.currentQid);
+  });
+
+  it("moves to the next remaining item when the current song is removed", () => {
+    const queue = build(0);
+    const result = removeSong(queue, "a");
+    expect(current(result).songId).toBe("b");
+  });
+
+  it("skips later copies of the same song when choosing the next item", () => {
+    const queue = insertNext(build(0), "a", "copy");
+    expect(current(removeSong(queue, "a")).songId).toBe("b");
+  });
+
+  it("stops (null current) when the removed current song was last", () => {
+    expect(removeSong(build(2), "c").currentQid).toBeNull();
+  });
+
+  it("returns the same queue when the song isn't in it", () => {
+    const queue = build(0);
+    expect(removeSong(queue, "zzz")).toBe(queue);
   });
 });

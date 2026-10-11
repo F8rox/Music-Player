@@ -14,7 +14,10 @@ export const SongRow = ({ song, index, duration, active, onPlay, actions }) => (
       <span className="song-index" aria-hidden="true">{active ? "♪" : index + 1}</span>
       <span className="song-text">
         <span className="song-title">{song.title}</span>
-        <span className="song-artist">{song.artist}</span>
+        <span className="song-artist">
+          {song.imported && <span className="yours-tag">Yours</span>}
+          {song.artist}
+        </span>
       </span>
       <span className="song-duration">{durationLabel(duration)}</span>
     </button>

@@ -68,6 +68,18 @@ export const remove = (queue, qid) => {
   return settle(queue, queue.items.filter((item) => item.qid !== qid));
 };
 
+// A song deleted from the library leaves the queue entirely (every copy). If it was
+// current, the next remaining item after it becomes current; none left after it = stopped (null).
+export const removeSong = (queue, songId) => {
+  const items = queue.items.filter((item) => item.songId !== songId);
+  if (items.length === queue.items.length) return queue;
+  const playing = current(queue);
+  const currentQid = playing?.songId === songId
+    ? queue.items.slice(currentIndex(queue) + 1).find((item) => item.songId !== songId)?.qid ?? null
+    : queue.currentQid;
+  return { ...settle(queue, items), currentQid };
+};
+
 // Everything up to and including the current item stays put; the rest is Fisher–Yates shuffled.
 export const shuffle = (queue, random = Math.random) => {
   const split = currentIndex(queue) + 1;

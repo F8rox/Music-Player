@@ -55,7 +55,7 @@ src/
   lib/                        pure rules, each with *.test.js
     format.js  queue.js  storage.js  playlists.js  arrange.js  tags.js (tag sanitising)
   library/                    the only IndexedDB code
-    db.js  importFiles.js  library.test.js
+    db.js  importFiles.js  library.test.js   (one idb-keyval store, keys song:/blob:/cover:/analysis:<id>)
   audio/
     engine.js                 AudioContext singleton, decks, fades, analyser
     analysis/
@@ -63,10 +63,10 @@ src/
       analysis.worker.js      DSP entry point
       dsp.js  dsp.test.js     pure DSP: rms, intro/outro, onset, bpm
   state/
-    MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js
+    MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js  useSongUrl.js
   components/
     Navbar  PlayerBar  QueuePanel  SortableList  SongRow  SongMenu  Notice
-    ImportButton  DropZone  Visualiser  SettingsPopover  TempoDialog  ConfirmDialog
+    ImportButton  ImportPanel  DropZone  Visualiser  SettingsPopover  TempoDialog  ConfirmDialog
   pages/
     AllSongs.jsx  Playlists.jsx  PlaylistDetail.jsx  About.jsx
 ```

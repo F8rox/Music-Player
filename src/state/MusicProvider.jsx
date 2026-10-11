@@ -1,23 +1,31 @@
-import { useEffect, useRef, useState } from "react";
-import { songs } from "../data/songs";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { songs as bundled } from "../data/songs";
 import * as Q from "../lib/queue";
 import { load, save } from "../lib/storage";
 import { MusicContext } from "./useMusic";
 import { useDurations } from "./useDurations";
+import { useLibrary } from "./useLibrary";
 
-const songIds = new Set(songs.map((song) => song.id));
-const songById = (id) => songs.find((song) => song.id === id) ?? null;
-
+// The library must load before saved state is parsed, so stored ids can be checked against it.
 export const MusicProvider = ({ children }) => {
-  const [saved] = useState(() => load(songIds));
+  const library = useLibrary();
+  if (!library.ready) return <p className="empty-message loading">Loading your library…</p>;
+  return <PlayerState library={library}>{children}</PlayerState>;
+};
+
+const PlayerState = ({ library, children }) => {
+  const songs = useMemo(() => [...bundled, ...library.songs], [library.songs]);
+  const songById = (id) => songs.find((song) => song.id === id) ?? null;
+  const [saved] = useState(() => load(new Set(songs.map((song) => song.id))));
   const [queue, setQueue] = useState(saved.queue);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(saved.volume);
   const [repeat, setRepeat] = useState(saved.repeat);
-  const [notice, setNotice] = useState(null);
-  const durations = useDurations(songs);
+  const [notice, setNotice] = useState(() =>
+    library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
+  const probed = useDurations(bundled);
   const saveFailed = useRef(false);
 
   const notify = (text) => setNotice({ text, id: Date.now() });
@@ -41,8 +49,19 @@ export const MusicProvider = ({ children }) => {
 
   const value = {
     songs,
-    durations,
     songById,
+    durationOf: (song) => probed[song.id] ?? song.durationSec,
+    imports: library.imports,
+    importing: library.busy,
+    importFiles: library.add,
+    clearImports: library.clearImports,
+    removeFromLibrary: async (songId) => {
+      const nextQueue = Q.removeSong(queue, songId);
+      setQueue(nextQueue);
+      if (!nextQueue.currentQid) setIsPlaying(false);
+      await library.remove(songId);
+      notify("Removed from your library");
+    },
     queue,
     currentQid: queue.currentQid,
     currentTrack: item && songById(item.songId),

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useMusic } from "../state/useMusic";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 export const SongMenu = ({ song }) => {
-  const { playNext, addToQueue } = useMusic();
+  const { playNext, addToQueue, removeFromLibrary } = useMusic();
   const [open, setOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -42,7 +44,24 @@ export const SongMenu = ({ song }) => {
         <div ref={menuRef} role="menu" className="menu">
           <button type="button" role="menuitem" onClick={choose(playNext)}>Play next</button>
           <button type="button" role="menuitem" onClick={choose(addToQueue)}>Add to queue</button>
+          {song.imported && (
+            <button type="button" role="menuitem" onClick={() => { setOpen(false); setConfirming(true); }}>
+              Remove from library
+            </button>
+          )}
         </div>
+      )}
+      {confirming && (
+        <ConfirmDialog
+          title="Remove from library?"
+          message={`"${song.title}" will be deleted from this browser, your queue and your playlists.`}
+          confirmLabel="Remove"
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            removeFromLibrary(song.id);
+          }}
+        />
       )}
     </div>
   );
