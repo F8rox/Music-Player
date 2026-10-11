@@ -5,7 +5,8 @@ import { useMusic } from "../state/useMusic";
 export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
   const {
     currentTrack, currentQid, restorePosition, currentTime, setCurrentTime, duration, setDuration,
-    isPlaying, setIsPlaying, volume, setVolume, nextTrack, prevTrack,
+    isPlaying, setIsPlaying, volume, setVolume, nextTrack, prevTrack, trackEnded,
+    shuffled, toggleShuffle, repeat, cycleRepeat,
   } = useMusic();
   const audioRef = useRef(null);
   const pendingSeek = useRef(restorePosition);
@@ -34,6 +35,13 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
     pendingSeek.current = 0;
   };
 
+  const handleEnded = () => {
+    // Repeat "one": same queue item, so the audio element isn't remounted; restart it here.
+    if (!trackEnded()) return;
+    seek(0);
+    audioRef.current.play().catch(() => setIsPlaying(false));
+  };
+
   const handlePrev = () => {
     if (audioRef.current.currentTime > 3 || !prevTrack()) seek(0);
   };
@@ -56,7 +64,7 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
           }}
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-          onEnded={nextTrack}
+          onEnded={handleEnded}
         />
       )}
 
@@ -67,6 +75,15 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
 
       <div className="player-center">
         <div className="controls">
+          <button
+            className="control-btn toggle-btn"
+            aria-label="Shuffle"
+            aria-pressed={shuffled}
+            disabled={disabled}
+            onClick={toggleShuffle}
+          >
+            🔀
+          </button>
           <button className="control-btn" aria-label="Previous" disabled={disabled} onClick={handlePrev}>⏮</button>
           <button
             className="control-btn play-btn"
@@ -77,6 +94,13 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
             {isPlaying ? "⏸" : "▶"}
           </button>
           <button className="control-btn" aria-label="Next" disabled={disabled} onClick={nextTrack}>⏭</button>
+          <button
+            className={`control-btn toggle-btn${repeat === "off" ? "" : " on"}`}
+            aria-label={`Repeat ${repeat}`}
+            onClick={cycleRepeat}
+          >
+            🔁{repeat === "one" && <span className="repeat-badge" aria-hidden="true">1</span>}
+          </button>
         </div>
         <div className="progress-container">
           <span className="time">{formatTime(currentTime)}</span>

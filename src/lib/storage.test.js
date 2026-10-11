@@ -9,11 +9,13 @@ const valid = {
       { qid: "b", songId: "2", order: 1 },
     ],
     currentQid: "b",
+    shuffled: true,
   },
   volume: 0.3,
   position: 42,
+  repeat: "one",
 };
-const defaults = { queue: { items: [], currentQid: null }, volume: 0.5, position: 0 };
+const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off" };
 
 describe("parse", () => {
   it("round-trips valid state", () => {
@@ -30,7 +32,7 @@ describe("parse", () => {
 
   it("uses defaults per field for wrong types", () => {
     const result = parse(JSON.stringify({ ...valid, queue: "junk", volume: "loud" }), songIds);
-    expect(result).toEqual({ ...defaults, position: 42 });
+    expect(result).toEqual({ ...defaults, position: 42, repeat: "one" });
   });
 
   it("drops unknown song ids and falls back to the first item", () => {
@@ -61,5 +63,12 @@ describe("parse", () => {
   it("strips extra fields from queue items", () => {
     const queue = { items: [{ ...valid.queue.items[0], url: "https://evil.example/x.mp3" }], currentQid: "a" };
     expect(parse(JSON.stringify({ queue }), songIds).queue.items[0]).toEqual(valid.queue.items[0]);
+  });
+
+  it("falls back for an unknown repeat mode and non-boolean shuffled", () => {
+    const text = JSON.stringify({ repeat: "sideways", queue: { ...valid.queue, shuffled: "yes" } });
+    const result = parse(text, songIds);
+    expect(result.repeat).toBe("off");
+    expect(result.queue.shuffled).toBe(false);
   });
 });

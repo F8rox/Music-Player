@@ -1,17 +1,22 @@
 // Pure queue rules (YT Music model). Items: { qid, songId, order }.
-// `order` mirrors position while unshuffled; Unit 06 uses it to undo a shuffle.
+// While unshuffled, `order` mirrors position. While shuffled, existing orders are frozen
+// (new items get max + 1) so unshuffle can restore the original sequence.
 
 export const newQid = () => crypto.randomUUID();
 
-export const emptyQueue = { items: [], currentQid: null };
+export const emptyQueue = { items: [], currentQid: null, shuffled: false };
 
 const renumber = (items) => items.map((item, order) => ({ ...item, order }));
+
+const settle = (queue, items) => ({ ...queue, items: queue.shuffled ? items : renumber(items) });
+
+const nextOrder = (queue) => Math.max(-1, ...queue.items.map((item) => item.order)) + 1;
 
 const currentIndex = (queue) => queue.items.findIndex((item) => item.qid === queue.currentQid);
 
 export const fromList = (songIds, startIndex, makeId = newQid) => {
   const items = renumber(songIds.map((songId) => ({ qid: makeId(), songId })));
-  return { items, currentQid: items[startIndex]?.qid ?? null };
+  return { items, currentQid: items[startIndex]?.qid ?? null, shuffled: false };
 };
 
 export const current = (queue) => queue.items[currentIndex(queue)] ?? null;
@@ -24,6 +29,10 @@ export const next = (queue, repeat) => {
   return { queue: { ...queue, currentQid: target.qid }, stopped: false };
 };
 
+// When a track finishes: repeat "one" keeps the same item; otherwise behave like next.
+export const afterEnded = (queue, repeat) =>
+  repeat === "one" ? { queue, stopped: false } : next(queue, repeat);
+
 // Returns the same object when already at the first item (caller restarts the track).
 export const prev = (queue) => {
   const index = currentIndex(queue);
@@ -32,8 +41,9 @@ export const prev = (queue) => {
 };
 
 const insertAt = (queue, at, songId, qid) => {
-  const items = renumber([...queue.items.slice(0, at), { qid, songId }, ...queue.items.slice(at)]);
-  return { items, currentQid: queue.currentQid ?? qid };
+  const item = { qid, songId, order: nextOrder(queue) };
+  const settled = settle(queue, [...queue.items.slice(0, at), item, ...queue.items.slice(at)]);
+  return { ...settled, currentQid: queue.currentQid ?? qid };
 };
 
 export const insertNext = (queue, songId, qid = newQid()) =>
@@ -49,11 +59,28 @@ export const move = (queue, fromQid, toIndex) => {
   if (from < 0 || from === to) return queue;
   const items = [...queue.items];
   items.splice(to, 0, ...items.splice(from, 1));
-  return { ...queue, items: renumber(items) };
+  return settle(queue, items);
 };
 
 // The current item can't be removed; that would silently change what's playing.
 export const remove = (queue, qid) => {
   if (qid === queue.currentQid) return queue;
-  return { ...queue, items: renumber(queue.items.filter((item) => item.qid !== qid)) };
+  return settle(queue, queue.items.filter((item) => item.qid !== qid));
+};
+
+// Everything up to and including the current item stays put; the rest is Fisher–Yates shuffled.
+export const shuffle = (queue, random = Math.random) => {
+  const split = currentIndex(queue) + 1;
+  const tail = queue.items.slice(split);
+  for (let i = tail.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [tail[i], tail[j]] = [tail[j], tail[i]];
+  }
+  return { ...queue, items: [...queue.items.slice(0, split), ...tail], shuffled: true };
+};
+
+export const unshuffle = (queue) => {
+  const split = currentIndex(queue) + 1;
+  const tail = queue.items.slice(split).sort((a, b) => a.order - b.order);
+  return { ...queue, items: renumber([...queue.items.slice(0, split), ...tail]), shuffled: false };
 };

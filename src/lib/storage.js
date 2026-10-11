@@ -1,17 +1,18 @@
 // The only module that touches localStorage. Everything read back is untrusted.
 const KEY = "musicPlayer:v1";
+const REPEAT_MODES = ["off", "all", "one"];
 
 const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 
 const parseQueue = (raw, songIds) => {
-  if (!isObject(raw) || !Array.isArray(raw.items)) return { items: [], currentQid: null };
+  if (!isObject(raw) || !Array.isArray(raw.items)) return { items: [], currentQid: null, shuffled: false };
   const seen = new Set();
   const items = raw.items
     .filter((item) => isObject(item) && typeof item.qid === "string" && songIds.has(item.songId)
       && Number.isFinite(item.order) && !seen.has(item.qid) && seen.add(item.qid))
     .map(({ qid, songId, order }) => ({ qid, songId, order }));
   const currentQid = seen.has(raw.currentQid) ? raw.currentQid : (items[0]?.qid ?? null);
-  return { items, currentQid };
+  return { items, currentQid, shuffled: raw.shuffled === true };
 };
 
 const inRange = (value, min, max, fallback) =>
@@ -30,6 +31,7 @@ export const parse = (text, songIds) => {
     queue: parseQueue(data.queue, songIds),
     volume: inRange(data.volume, 0, 1, 0.5),
     position: inRange(data.position, 0, Number.MAX_SAFE_INTEGER, 0),
+    repeat: REPEAT_MODES.includes(data.repeat) ? data.repeat : "off",
   };
 };
 

@@ -34,8 +34,8 @@ Components never mutate state shapes directly. Every change goes through a `src/
   queue: {
     items: [{ qid, songId, order }], // qid: unique per queue entry; order: position before shuffle
     currentQid: string | null,
+    shuffled: boolean,          // lives on the queue so every queue op knows whether to freeze `order`
   },
-  shuffle: boolean,
   repeat: "off" | "all" | "one",
   volume: number,          // 0..1
   position: number,        // seconds into current item, saved rounded
@@ -46,7 +46,7 @@ Components never mutate state shapes directly. Every change goes through a `src/
 Not persisted: `isPlaying` (always false after load), `currentTime` at sub-second precision, and `durations` (a `{ songId: seconds | null }` map filled by probing).
 
 - The current item is found by `currentQid`, never by index. Reordering keeps the current item because its qid doesn't change.
-- `order` is assigned when an item enters the queue. Shuffle off sorts the items after the current one by `order`. Items added while shuffled get `order = max + 1`.
+- While unshuffled, `order` mirrors position (renumbered after every change). While shuffled, existing orders are frozen and new items get `order = max + 1`. Shuffle off sorts the items after the current one by `order`.
 - Playlist `songIds` must exist in the library. Unknown ids are dropped when loading.
 - Playlist songs are unique within a playlist. Adding a duplicate is a no-op with a visible message.
 

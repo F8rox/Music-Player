@@ -15,6 +15,7 @@ export const MusicProvider = ({ children }) => {
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(saved.volume);
+  const [repeat, setRepeat] = useState(saved.repeat);
   const [notice, setNotice] = useState(null);
   const durations = useDurations(songs);
   const saveFailed = useRef(false);
@@ -24,14 +25,19 @@ export const MusicProvider = ({ children }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (save({ queue, volume, position: savedSecond }) || saveFailed.current) return;
+      if (save({ queue, volume, repeat, position: savedSecond }) || saveFailed.current) return;
       saveFailed.current = true;
       setNotice({ text: "Couldn't save. Changes will be lost on refresh.", id: Date.now() });
     }, 300);
     return () => clearTimeout(timer);
-  }, [queue, volume, savedSecond]);
+  }, [queue, volume, repeat, savedSecond]);
 
   const item = Q.current(queue);
+
+  const advance = ({ queue: nextQueue, stopped }) => {
+    setQueue(nextQueue);
+    if (stopped) setIsPlaying(false);
+  };
 
   const value = {
     songs,
@@ -50,10 +56,16 @@ export const MusicProvider = ({ children }) => {
     volume,
     setVolume,
     notice,
+    repeat,
+    shuffled: queue.shuffled,
     playFromList: (ids, index) => {
-      setQueue(Q.fromList(ids, index));
+      const fresh = Q.fromList(ids, index);
+      // Shuffle on: the clicked song plays first, the rest of the list is shuffled behind it.
+      setQueue(queue.shuffled ? Q.shuffle(Q.move(fresh, fresh.currentQid, 0)) : fresh);
       setIsPlaying(true);
     },
+    toggleShuffle: () => setQueue(queue.shuffled ? Q.unshuffle(queue) : Q.shuffle(queue)),
+    cycleRepeat: () => setRepeat({ off: "all", all: "one", one: "off" }[repeat]),
     playQid: (qid) => {
       setQueue((q) => ({ ...q, currentQid: qid }));
       setIsPlaying(true);
@@ -70,8 +82,14 @@ export const MusicProvider = ({ children }) => {
     },
     removeFromQueue: (qid) => setQueue((q) => Q.remove(q, qid)),
     moveInQueue: (qid, toIndex) => setQueue((q) => Q.move(q, qid, toIndex)),
-    // shortcut: always wraps (repeat "all") until Unit 06 adds the repeat toggle.
-    nextTrack: () => setQueue((q) => Q.next(q, "all").queue),
+    // The Next button skips even with repeat "one"; only repeat "off" stops at the end.
+    nextTrack: () => advance(Q.next(queue, repeat === "off" ? "off" : "all")),
+    // Returns true when the same item should replay (repeat "one").
+    trackEnded: () => {
+      const result = Q.afterEnded(queue, repeat);
+      advance(result);
+      return result.queue.currentQid === queue.currentQid && !result.stopped;
+    },
     // Returns false at the first item so the player restarts the track instead.
     prevTrack: () => {
       const previous = Q.prev(queue);
