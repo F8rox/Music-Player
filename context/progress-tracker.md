@@ -40,6 +40,7 @@ Unit 08 (Playlists).
 Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by another local project.
 
 ## Open Questions
+0. **Owner report 2026-10-12:** (a) in the narrow built-in browser pane the player bar's track title and artist touch or clip at the left edge; fix in Unit 15. (b) A Chrome screenshot showed no player bar; waiting for the owner to confirm whether it was cropped. Note for testers: imports are per browser and per origin (`localhost` and `127.0.0.1` are separate libraries).
 1. **Demo tracks:** resolved by direction. The commercial mp3s get replaced with free-licensed (CC0/CC-BY) tracks that are committed and credited (Unit 07). The owner picks the tracks.
 2. **Deploy host:** resolved as GitHub Pages (Unit 15), with CSP via a meta tag.
 3. **Song metadata:** song 5's artist was fixed from "Ariana Granede" to "Ariana Grande". Moot once the demo tracks are replaced.
