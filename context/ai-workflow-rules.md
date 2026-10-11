@@ -50,7 +50,7 @@ This app needs no keys or credentials. If a future unit needs one, the rule is:
 2. Use a fallback and keep building. Mark the affected criteria "blocked on input".
 3. Ask at the end of the unit. Never ask for secret values in chat. The user puts them in `.env.local`.
 
-The bundled mp3 files are an input of a sort: they aren't in git. If `public/songs/` is empty on a fresh checkout, record it as an input needed and keep building the logic and tests.
+The free-licensed demo tracks (Unit 07) are an owner input. Until they arrive, keep the current local files, mark that criterion "blocked on input", and keep building. Real songs with known tempos for the Unit 10 accuracy table can be the owner's or any free-licensed tracks with a published BPM.
 
 ## Protected Files
 

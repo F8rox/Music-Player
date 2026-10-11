@@ -17,13 +17,14 @@ Instructions for any AI coding agent working on the Music Player.
 
 - Build only the unit you were asked to build.
 - Do not invent behavior. If something is missing or ambiguous, add it to Open Questions in `progress-tracker.md` and ask.
-- Do not build anything listed under Out Of Scope in `project-overview.md`. In particular there is no YouTube or YouTube Music API, no backend and no accounts. "Like YT Music" means copying its UX only.
+- Do not build anything listed under Out Of Scope in `project-overview.md`. In particular there is no YouTube, YouTube Music or streaming API, no backend, no accounts and no uploads. "Like YT Music" means copying its UX only. The user's music never leaves their browser.
 - Do not start a later phase's units early.
 - Use the design tokens in `src/index.css` only. No hardcoded colors outside the `:root` token block.
 - Write lean code: no dead code, no duplicated logic, no speculative features, no unneeded dependencies.
 - Queue, shuffle, repeat and playlist rules live in pure functions in `src/lib/`, with Vitest tests. Components don't hold these rules.
-- There is exactly one `<audio>` element in the app.
-- Treat everything read from `localStorage` as untrusted. Validate it, and fall back to defaults when it's invalid.
+- Audio playback: one `<audio>` element until Unit 09; from Unit 09 on, only `src/audio/engine.js` creates audio elements and nodes (exactly two decks).
+- Treat everything read from `localStorage`, IndexedDB and imported file tags as untrusted. Validate it, and fall back to defaults when it's invalid.
+- Tempo detection is approximate. Never let a wrong reading make playback sound worse: gate on confidence and fall back.
 - Apply the security checklist to every unit.
 
 ## Lessons Carried Over

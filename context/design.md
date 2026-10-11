@@ -61,3 +61,15 @@ Use Unicode glyphs or inline SVG in `currentColor`. No icon font or icon package
 
 ## Motion
 Transitions are 150ms ease on background and transform. Respect `prefers-reduced-motion` by turning off transform transitions. The gradient title animation is removed.
+
+## Library And Auto-DJ Components (Units 07–14)
+
+- **Add music:** a button in the All Songs header ("Add your music") plus a drop zone. Dragging files over the page shows a full-height dashed `--accent` outline with "Drop to add". It also works from the keyboard: the button opens the file picker. On Chromium an "Add a folder" option sits next to it.
+- **Import progress:** a compact list in a Notice-style panel: file name, then "Reading tags…", "Analysing…", "Done", or "Can't play this file" in `--danger`.
+- **Song row additions:** a small energy dot before the duration (colour on the energy scale below), and "~124" BPM in `--text-muted` with `title="Approximate tempo"`. While a song is analysing, the dot is a pulsing ring (static under reduced motion). Imported songs get "Remove from library" in their ⋯ menu.
+- **Energy scale:** five tokens, `--energy-1` (cool, `#38bdf8`) to `--energy-5` (warm, `#f97316`), with `--energy-2: #22d3ee`, `--energy-3: #10b981`, `--energy-4: #facc15`. Energy is never shown by colour alone: the dot has an `aria-label` such as "Energy 4 of 5".
+- **Visualiser:** a `<canvas>` behind the track info in the player bar, 64 frequency bars, at 40% opacity so the text stays readable (contrast checked). Bar colour is the current track's energy token. It's `aria-hidden`.
+- **Arrange my queue:** a button in the Up next header with an icon and the label "Arrange". After use it becomes "Undo arrange" until the queue next changes. The Notice says "Arranged 14 songs: build-up, peak, cool-down".
+- **Settings popover** (gear in the player bar): Crossfade on/off, fade length slider (2–12 s), "Beat-match (experimental)" on/off, and storage used (for example, "1.2 GB of 8 GB").
+- **Tempo fix:** in the song menu, "Fix tempo…" opens a small dialog with ½×, 2× and Tap buttons and the current value.
+- **About page:** demo track credits (title, artist, licence, link) and a one-line privacy note: "Your music never leaves this browser."

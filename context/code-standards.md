@@ -46,24 +46,29 @@
 ## File Organization
 
 ```
-public/songs/*.mp3            bundled audio (not committed, see progress-tracker)
+public/songs/                 free-licensed demo tracks + CREDITS.md (committed)
 src/
   main.jsx
   App.jsx                     routes and layout shell
   index.css                   tokens + component styles
-  data/songs.js               static library
-  lib/
-    format.js                 formatTime
-    queue.js  queue.test.js   build, next, prev, insert, append, remove, move, shuffle, unshuffle
-    playlists.js  playlists.test.js
-    storage.js  storage.test.js
+  data/songs.js               bundled demo track list
+  lib/                        pure rules, each with *.test.js
+    format.js  queue.js  storage.js  playlists.js  arrange.js  tags.js (tag sanitising)
+  library/                    the only IndexedDB code
+    db.js  importFiles.js  library.test.js
+  audio/
+    engine.js                 AudioContext singleton, decks, fades, analyser
+    analysis/
+      analyse.js              main-thread decode + worker hand-off
+      analysis.worker.js      DSP entry point
+      dsp.js  dsp.test.js     pure DSP: rms, intro/outro, onset, bpm
   state/
-    MusicProvider.jsx         context, actions, persistence, duration probing
-    useMusic.js               useContext wrapper
-    useDurations.js           metadata probe for song durations
+    MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js
   components/
-    Navbar.jsx  PlayerBar.jsx  QueuePanel.jsx  SortableList.jsx
-    SongRow.jsx  SongMenu.jsx  Notice.jsx
+    Navbar  PlayerBar  QueuePanel  SortableList  SongRow  SongMenu  Notice
+    ImportButton  DropZone  Visualiser  SettingsPopover  TempoDialog  ConfirmDialog
   pages/
-    AllSongs.jsx  Playlists.jsx  PlaylistDetail.jsx
+    AllSongs.jsx  Playlists.jsx  PlaylistDetail.jsx  About.jsx
 ```
+
+DSP rules: pure functions over `Float32Array` input, tested with synthetic signals (a click track at a known BPM, a sine with silence at each end). No React, no Web Audio inside `dsp.js`.

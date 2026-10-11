@@ -21,26 +21,35 @@ The app is a Vite + React tutorial-stage player. Checked on 2026-10-12:
 | 04 Queue | Done | lint 0, tests 34/34 (queue.test.js covers every export plus empty, single, end and repeat, duplicates, removal before/after current; storage.test.js has a round trip and negatives for non-JSON, wrong types, unknown song ids, duplicate qids, out-of-range volume/position, `__proto__`, missing key, extra item fields), build ok. Browser: fresh storage shows "Nothing playing" with controls disabled. Click My Love gives the queue in list order 1–5, current at 3, playing. Play next (menu opened, then Enter from the keyboard) on Into You while song 1 plays puts it at position 2 with the notice "Playing next", and focus returns to the ⋯ button. Duplicate: second Into You entry starts at 1.1s, not 100s. Add to queue appends a duplicate My Love with a notice. Removing a non-current item keeps the same audio element playing (9.6s → 10.4s), and the current item has no remove button. Previous after 47s restarts at 0.0; Previous at 0 goes back one. Refresh restores the queue, current item and position 47s, paused. Negative: `{"queue":"junk","volume":"loud","position":-9}` gives an empty queue, volume 0.5, and no new uncaught errors (count unchanged). |
 | 05 Queue reorder | Done pending manual touch check | lint 0, tests 39/39 (5 `move` tests: up, down, same index or unknown no-op, current moved, clamping), build ok, audit 0. Mouse: dragged Into You handle to position 2 while song 1 played; the same audio element kept going (3.9s → 12.0s), then Next played Into You. Order survived a reload. Keyboard (paced like a person): Space lifts ("Picked up The Way I Are."), ArrowDown ("Moved to position 4."), Space drops ("Dropped … at position 4.") and focus stays on the handle; Space, ArrowUp, Esc restores the order exactly ("Cancelled. … returned to its place.") and the panel stays open; a second Esc closes it and focus returns to the toggle. Clicking a row (not its handle) plays it. Negative: current item dragged to the end, then Next wraps to item 1, no errors. **Touch not verified:** the browser tool sends mouse events even in mobile emulation, so it needs one manual long-press test on a phone. Note: key presses fired with zero delay confused dnd-kit's keyboard sensor during testing; not reproducible at human speed. |
 | 06 Shuffle and repeat | Done | lint 0, tests 51/51 (seeded-LCG shuffle: prefix fixed, permutation, deterministic, unshuffle restores, added-while-shuffled kept after originals, remove while shuffled, unshuffle mid-queue, empty; `afterEnded`: one keeps the qid, all wraps, off stops; Next with one advances; storage: bad repeat or shuffled falls back), build ok. Browser: shuffle on while song 1 plays reorders only the songs below it (same audio element, 0.7 → 1.1s), shuffle off restores the order exactly. Repeat cycles off → all → one with a badge. Repeat one: seek to end−2s, then the same song replays from 0.7s on the same element. Next with repeat one goes to The Way I Are. Repeat off on the last item: track ends, ▶ shown, paused. Shuffle on and repeat all survive a reload. Negative: `repeat:"sideways"`, `shuffled:"yes"` loads as off/false with no errors. |
-| 07 Playlists | Not started | |
-| 08 Responsive, a11y, release audit | Not started | |
+| 07 Your own library | Not started | |
+| 08 Playlists | Not started | |
+| 09 Audio engine | Not started | |
+| 10 Track analysis | Not started | |
+| 11 Visualiser | Not started | |
+| 12 Arrange my queue | Not started | |
+| 13 Smart crossfade | Not started | |
+| 14 Beat-matching (experimental) | Not started | |
+| 15 Responsive, a11y, release | Not started | |
 
 ## In Progress
 None.
 
 ## Next Up
-Prompt 1B is done. Next: update the specs for the owner's new direction (2026-10-12): bring-your-own-music import (IndexedDB) and an Auto-DJ (in-browser BPM, energy and intro/outro analysis, beat-matched crossfades, an energy-arranged queue, a live visualiser). Both are currently Out Of Scope (uploads, crossfade), so project-overview, architecture and new featureSpecs need rewriting before building. Then 1C (playlists, audit).
+Prompt 1C (Units 07 Your own library, 08 Playlists) in `build-prompts.md`.
 
 Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by another local project.
 
 ## Open Questions
-1. **mp3s in git:** the bundled songs are commercial recordings, so they're gitignored by default and a fresh clone has no audio. Should they be committed instead, given the repo stays private? Owner to decide.
-2. **Deploy host:** not chosen yet. A CSP header gets set there (`security-context.md`).
-3. **Song metadata:** song 5's artist is fixed from "Ariana Granede" to "Ariana Grande". The others are kept as they are.
+1. **Demo tracks:** resolved by direction. The commercial mp3s get replaced with free-licensed (CC0/CC-BY) tracks that are committed and credited (Unit 07). The owner picks the tracks.
+2. **Deploy host:** resolved as GitHub Pages (Unit 15), with CSP via a meta tag.
+3. **Song metadata:** song 5's artist was fixed from "Ariana Granede" to "Ariana Grande". Moot once the demo tracks are replaced.
+4. **BPM library:** `web-audio-beat-detector` or the in-house estimator. Decided by benchmark in Unit 10.
 
 ## Architecture Decisions
 - 2026-10-12: Copy the YT Music UX only. No YouTube or YT Music API (the owner's choice).
 - 2026-10-12: Persist to localStorage (`musicPlayer:v1`). No backend or accounts (the owner's choice).
-- 2026-10-12: Library is `public/songs` only. No runtime uploads (the owner's choice).
+- 2026-10-12: ~~Library is `public/songs` only~~ **Superseded the same day:** the owner chose bring-your-own-music. Imported files are stored in IndexedDB and never uploaded.
+- 2026-10-12: The Auto-DJ direction and the build order come from an LLM council (5 independent members plus blind peer review). Its consensus: import first; rebuild the engine once on its own; the analysis is the foundation; smart crossfade over beat-matching; beat-matching last and confidence-gated. The ranking was Domain rigorist > Red-teamer > Generalist > First-principles > Pragmatist. The scope change added units 07 and 09–14; the old 07/08 became 08/15.
 - 2026-10-12: Use `@dnd-kit/core` and `@dnd-kit/sortable` for reordering, because they cover touch, keyboard and screen reader support that native HTML5 DnD doesn't.
 - 2026-10-12: Vitest for the pure logic in `src/lib`.
 - 2026-10-12: Installed @dnd-kit/core 6.3.1, @dnd-kit/sortable 10.0.0 and @dnd-kit/utilities 3.2.2 (CSS transform helper). Sensors are Mouse (4px) + Touch (150ms delay) + Keyboard, not Pointer + Touch, because dnd-kit's docs warn the Pointer and Touch sensors conflict.
@@ -51,7 +60,9 @@ Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by 
 
 | Input | Where | Why | Unblocks |
 |-------|-------|-----|----------|
-| none | | | |
+| Free-licensed demo tracks (5–8, CC0 or CC-BY) with their licence links | `public/songs/` + `CREDITS.md` | The commercial mp3s can't be published | Unit 07 last criterion, Unit 15 deploy |
+| 5 songs with known BPM (for the accuracy table) | any local files | Proves the tempo detection on real music | Unit 10 real-song criterion |
 
 ## Session Notes
+- 2026-10-12: Specs rewritten for bring-your-own-music + Auto-DJ (overview, architecture, security, design, code standards, 9 feature specs, prompts 1C–2C).
 - 2026-10-12: Context folder, feature specs and build prompts created. The earlier `SPEC.md` issue list was folded into `featureSpecs/01-foundation-fixes.md`.
