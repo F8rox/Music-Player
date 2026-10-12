@@ -8,7 +8,7 @@
   --text-muted: #aaaaaa;
   --accent: #10b981;
   --accent-strong: #059669;
-  --danger: #ef4444;
+  --danger: #f87171;
   --focus: #7dd3fc;
   --overlay: #000000b3;
 
@@ -526,7 +526,7 @@ h2 {
 
 .danger-btn {
   background: var(--danger);
-  color: var(--text);
+  color: var(--bg);
 }
 
 .primary-btn:disabled,

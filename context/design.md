@@ -16,7 +16,7 @@ All colors live as CSS custom properties in the `:root` block at the top of `src
 | `--text-muted` | `#aaaaaa` | artist, time, secondary text |
 | `--accent` | `#10b981` | active row, progress fill, on-state toggles |
 | `--accent-strong` | `#059669` | accent hover |
-| `--danger` | `#ef4444` | delete actions |
+| `--danger` | `#f87171` | delete actions (dark `--bg` text on it; 5.2:1 or better as text on surfaces) |
 | `--focus` | `#7dd3fc` | focus ring (`outline: 2px solid var(--focus)`) |
 | `--overlay` | `#000000b3` | modal and drawer backdrop |
 
