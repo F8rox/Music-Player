@@ -2,7 +2,7 @@
 
 A browser music player for your own music, with a YouTube Music-style queue and an Auto-DJ: smart crossfade, loudness normalisation, Start radio, a "Draw your vibe" mood map and synced lyrics. Everything runs in your browser; your music never leaves your device.
 
-**Live app:** add the link here once GitHub Pages is on (Settings → Pages → Source: GitHub Actions).
+**Live app:** https://f8rox.github.io/Music-Player/ (once GitHub Pages is on: Settings → Pages → Source: GitHub Actions).
 
 Built spec-first: see [AGENTS.md](AGENTS.md) and [context/](context/).
 
