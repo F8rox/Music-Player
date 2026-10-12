@@ -227,6 +227,7 @@ export const engine = {
     return incoming.play();
   },
   currentTime: () => (decks ? decks[current].el.currentTime : 0),
+  duration: () => (decks && Number.isFinite(decks[current].el.duration) ? decks[current].el.duration : 0),
   // Test hook: which deck is audible and each deck's state.
   decks: () => decks?.map((d, i) => ({ current: i === current, paused: d.el.paused, src: d.el.getAttribute("src"), time: d.el.currentTime, gain: d.gain?.gain.value })),
   // Normalisation for whatever the current deck plays; a short ramp avoids a click.

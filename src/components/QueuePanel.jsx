@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useMusic } from "../state/useMusic";
+import { LiveSeekBar, RepeatButton, ShuffleButton, VolumeSlider } from "./PlayerControls";
+import { SettingsPopover } from "./SettingsPopover";
 import { SongRow } from "./SongRow";
 import { SortableList } from "./SortableList";
 
@@ -35,6 +37,15 @@ export const QueuePanel = ({ onClose }) => {
           <button ref={closeRef} type="button" className="control-btn" aria-label="Close Up next" onClick={onClose}>
             ✕
           </button>
+        </div>
+        <div className="drawer-controls">
+          <div className="drawer-row">
+            <ShuffleButton />
+            <RepeatButton />
+            <SettingsPopover />
+            <VolumeSlider />
+          </div>
+          <LiveSeekBar />
         </div>
         {queue.items.length === 0 ? (
           <p className="empty-message">Nothing queued</p>

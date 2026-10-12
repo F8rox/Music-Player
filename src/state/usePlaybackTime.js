@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { engine } from "../audio/engine";
 
-// Fast-changing time lives here, read only by PlayerBar, so song lists don't re-render ~4×/s.
+// Fast-changing time lives here, read only by the player bar and the drawer seek bar, so song lists
+// don't re-render ~4×/s. It starts from the engine so a late-mounted reader doesn't miss loadedmetadata.
 export const usePlaybackTime = () => {
-  const [time, setTime] = useState({ current: 0, duration: 0 });
+  const [time, setTime] = useState(() => ({ current: engine.currentTime(), duration: engine.duration() }));
 
   useEffect(() => {
     const offs = [
