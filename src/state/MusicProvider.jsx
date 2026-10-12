@@ -2,8 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { engine } from "../audio/engine";
 import { songs as bundled } from "../data/songs";
 import * as Q from "../lib/queue";
+import { foldBpm } from "../audio/analysis/dsp";
+import { arrange } from "../lib/arrange";
 import { energyLevels } from "../lib/energy";
 import { load, save } from "../lib/storage";
+import { tempoOf } from "../lib/tempo";
 import { MusicContext } from "./useMusic";
 import { useAnalysis } from "./useAnalysis";
 import { useDurations } from "./useDurations";
@@ -27,6 +30,8 @@ const PlayerState = ({ library, children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(saved.volume);
   const [repeat, setRepeat] = useState(saved.repeat);
+  // shortcut: undo lives in memory only (lost on refresh); persist it if users ask.
+  const [arrangeUndo, setArrangeUndo] = useState(null); // { before, after } item arrays
   const [notice, setNotice] = useState(() =>
     library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
   const probed = useDurations(bundled);
@@ -125,6 +130,24 @@ const PlayerState = ({ library, children }) => {
       // Shuffle on: the clicked song plays first, the rest of the list is shuffled behind it.
       setQueue(queue.shuffled ? Q.shuffle(Q.move(fresh, fresh.currentQid, 0)) : fresh);
       setIsPlaying(true);
+    },
+    // Undo stays offered until the items change (playing on doesn't count; a drag/add/remove does).
+    canUndoArrange: arrangeUndo?.after === queue.items,
+    arrangeQueue: () => {
+      const upcoming = Q.upcomingItems(queue);
+      if (upcoming.length < 4) return notify("Add a few more songs to arrange");
+      const info = Object.fromEntries(upcoming.map(({ songId }) => {
+        const bpm = tempoOf(analysis[songId]);
+        return [songId, { energy: energy[songId], bpm: bpm && foldBpm(bpm) }];
+      }));
+      const arranged = Q.replaceUpcoming(queue, arrange(upcoming, info));
+      setQueue(arranged);
+      setArrangeUndo({ before: queue.items, after: arranged.items });
+      notify(`Arranged ${upcoming.length} songs: build-up, peak, cool-down`);
+    },
+    undoArrange: () => {
+      setQueue({ ...queue, items: arrangeUndo.before });
+      setArrangeUndo(null);
     },
     toggleShuffle: () => setQueue(queue.shuffled ? Q.unshuffle(queue) : Q.shuffle(queue)),
     cycleRepeat: () => setRepeat({ off: "all", all: "one", one: "off" }[repeat]),

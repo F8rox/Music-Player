@@ -433,6 +433,11 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-2);
+}
+
+.queue-header h2 {
+  margin-right: auto;
 }
 
 .queue-header h2 {

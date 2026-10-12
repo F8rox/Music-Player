@@ -62,6 +62,12 @@ export const move = (queue, fromQid, toIndex) => {
   return settle(queue, items);
 };
 
+// Arrange: everything up to and including the current item stays; the upcoming items are replaced.
+export const replaceUpcoming = (queue, upcoming) =>
+  settle(queue, [...queue.items.slice(0, currentIndex(queue) + 1), ...upcoming]);
+
+export const upcomingItems = (queue) => queue.items.slice(currentIndex(queue) + 1);
+
 // The current item can't be removed; that would silently change what's playing.
 export const remove = (queue, qid) => {
   if (qid === queue.currentQid) return queue;

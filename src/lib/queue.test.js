@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  afterEnded, append, current, emptyQueue, fromList, insertNext, move, next, prev, remove, removeSong, shuffle, unshuffle,
+  afterEnded, append, current, emptyQueue, fromList, insertNext, move, next, prev, remove, removeSong, replaceUpcoming,
+  shuffle, unshuffle, upcomingItems,
 } from "./queue";
 
 const ids = () => {
@@ -246,5 +247,15 @@ describe("removeSong (library delete)", () => {
   it("returns the same queue when the song isn't in it", () => {
     const queue = build(0);
     expect(removeSong(queue, "zzz")).toBe(queue);
+  });
+});
+describe("replaceUpcoming / upcomingItems", () => {
+  it("keeps the played part and the current item, replaces the rest", () => {
+    const queue = fromList(["a", "b", "c", "d"], 1, ids());
+    const upcoming = upcomingItems(queue);
+    expect(upcoming.map((i) => i.songId)).toEqual(["c", "d"]);
+    const result = replaceUpcoming(queue, [...upcoming].reverse());
+    expect(songsOf(result)).toEqual(["a", "b", "d", "c"]);
+    expect(result.currentQid).toBe(queue.currentQid);
   });
 });

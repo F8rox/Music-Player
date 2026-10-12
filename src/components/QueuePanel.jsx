@@ -4,7 +4,10 @@ import { SongRow } from "./SongRow";
 import { SortableList } from "./SortableList";
 
 export const QueuePanel = ({ onClose }) => {
-  const { queue, currentQid, songById, durationOf, playQid, removeFromQueue, moveInQueue } = useMusic();
+  const {
+    queue, currentQid, songById, durationOf, playQid, removeFromQueue, moveInQueue,
+    arrangeQueue, undoArrange, canUndoArrange,
+  } = useMusic();
   const closeRef = useRef(null);
 
   useEffect(() => {
@@ -21,6 +24,14 @@ export const QueuePanel = ({ onClose }) => {
       <aside className="queue-panel" id="queue-panel" aria-label="Up next">
         <div className="queue-header">
           <h2>Up next</h2>
+          <button
+            type="button"
+            className="secondary-btn"
+            disabled={queue.items.length === 0}
+            onClick={canUndoArrange ? undoArrange : arrangeQueue}
+          >
+            {canUndoArrange ? "Undo arrange" : "Arrange"}
+          </button>
           <button ref={closeRef} type="button" className="control-btn" aria-label="Close Up next" onClick={onClose}>
             ✕
           </button>
