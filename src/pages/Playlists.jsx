@@ -20,7 +20,9 @@ export const Playlists = () => {
 
   return (
     <section>
-      <h2>Playlists</h2>
+      <h1 className="page-title">
+        Your <span className="serif gradient-text">playlists</span>
+      </h1>
       <form className="inline-form" onSubmit={submit} noValidate>
         <label htmlFor="new-playlist" className="visually-hidden">New playlist name</label>
         <input
@@ -43,6 +45,7 @@ export const Playlists = () => {
           {playlists.map((playlist) => (
             <li key={playlist.id}>
               <Link to={`/playlists/${playlist.id}`} className="playlist-link">
+                <span className="playlist-art" aria-hidden="true">{playlist.name.slice(0, 1).toUpperCase()}</span>
                 <span className="song-title">{playlist.name}</span>
                 <span className="song-artist">
                   {playlist.songIds.length} {playlist.songIds.length === 1 ? "song" : "songs"}

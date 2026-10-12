@@ -728,20 +728,27 @@ h2 {
 }
 
 .confirm-dialog {
-  max-width: min(420px, calc(100% - 2 * var(--space-4)));
-  padding: var(--space-6);
-  background: var(--surface);
+  max-width: min(440px, calc(100% - 2 * var(--space-4)));
+  padding: var(--space-8);
+  background: var(--surface-raised);
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow), 0 0 80px var(--glow-violet);
 }
 
 .confirm-dialog::backdrop {
   background: var(--overlay);
+  backdrop-filter: blur(6px);
 }
 
 .confirm-dialog h2 {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.confirm-dialog p {
+  color: var(--text-muted);
 }
 
 .loading {
@@ -792,40 +799,145 @@ h2 {
   flex-basis: 100%;
 }
 
+.page-title {
+  margin: 0 0 var(--space-6);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+/* Playlists as a grid of glass cards with a generated art tile. */
 .playlist-list {
   list-style: none;
-  margin: 0;
+  margin: var(--space-6) 0 0;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
 }
 
 .playlist-link {
   display: flex;
   flex-direction: column;
+  gap: var(--space-1);
   padding: var(--space-3);
-  border-radius: var(--radius-sm);
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   color: var(--text);
   text-decoration: none;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .playlist-link:hover {
-  background: var(--surface-raised);
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow);
 }
 
+.playlist-art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--gradient);
+  box-shadow: inset 0 0 60px var(--glow-violet);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 4rem;
+  color: var(--text);
+}
+
+/* Playlist detail header: a glass hero card. */
 .playlist-header {
-  align-items: flex-start;
+  align-items: flex-end;
+  padding: var(--space-8);
+  background:
+    linear-gradient(90deg, var(--overlay) 0%, var(--overlay) 40%, transparent 85%),
+    var(--surface);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
 }
 
-.section-title {
-  margin: var(--space-6) 0 var(--space-2);
-  font-size: 1rem;
+.playlist-header h2 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.03em;
+  margin: 0;
 }
 
-.add-result {
+.playlist-toolbar {
+  margin: var(--space-4) 0;
+}
+
+/* "Add songs" dropdown */
+.song-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.picker-panel {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 20;
+  width: min(420px, 90vw);
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+}
+
+.picker-panel .text-input {
+  max-width: none;
+  width: 100%;
+}
+
+.picker-count {
+  margin: var(--space-2) var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.picker-option {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-3);
+  width: 100%;
   padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.picker-option:hover,
+.picker-option:focus-visible {
+  background: var(--surface);
+}
+
+.picker-add {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--gradient);
+  font-weight: 600;
 }
 
 .menu .submenu-item {
@@ -878,6 +990,7 @@ h2 {
 }
 
 .tempo-value {
+  color: var(--text);
   font-size: 1.5rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

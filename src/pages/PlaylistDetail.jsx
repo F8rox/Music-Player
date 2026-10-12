@@ -2,20 +2,18 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { PlaylistHeader } from "../components/PlaylistHeader";
+import { SongPicker } from "../components/SongPicker";
 import { SongRow } from "../components/SongRow";
 import { SortableList } from "../components/SortableList";
 import { useMusic } from "../state/useMusic";
-
-const MAX_RESULTS = 8;
 
 export const PlaylistDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const {
-    playlists, songs, songById, durationOf, currentTrack, playFromList,
-    addToPlaylist, removeFromPlaylist, movePlaylistSong, deletePlaylist,
+    playlists, songById, durationOf, currentTrack, playFromList,
+    removeFromPlaylist, movePlaylistSong, deletePlaylist,
   } = useMusic();
-  const [filter, setFilter] = useState("");
   const [confirming, setConfirming] = useState(false);
   const playlist = playlists.find((p) => p.id === id);
 
@@ -28,19 +26,17 @@ export const PlaylistDetail = () => {
     );
   }
 
-  const query = filter.trim().toLowerCase();
-  const results = query
-    ? songs.filter((song) => !playlist.songIds.includes(song.id)
-        && `${song.title} ${song.artist}`.toLowerCase().includes(query)).slice(0, MAX_RESULTS)
-    : [];
-
   return (
     <section>
       <PlaylistHeader playlist={playlist} onDelete={() => setConfirming(true)} />
+      <div className="playlist-toolbar">
+        <SongPicker playlist={playlist} />
+      </div>
 
       {playlist.songIds.length === 0 ? (
-        <p className="empty-message">No songs yet. Add some below.</p>
+        <p className="empty-message panel">No songs yet. Use “Add songs” to pick from your library.</p>
       ) : (
+        <div className="panel">
         <SortableList
           items={playlist.songIds}
           getId={(songId) => songId}
@@ -69,31 +65,8 @@ export const PlaylistDetail = () => {
             );
           }}
         />
+        </div>
       )}
-
-      <h3 className="section-title">Add songs</h3>
-      <label htmlFor="song-filter" className="visually-hidden">Filter songs to add</label>
-      <input
-        id="song-filter"
-        className="text-input"
-        placeholder="Search your songs"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-      />
-      <ul className="song-list add-results">
-        {results.map((song) => (
-          <li key={song.id} className="add-result">
-            <span className="song-text">
-              <span className="song-title">{song.title}</span>
-              <span className="song-artist">{song.artist}</span>
-            </span>
-            <button type="button" className="secondary-btn" onClick={() => addToPlaylist(playlist.id, song.id)}>
-              Add
-            </button>
-          </li>
-        ))}
-      </ul>
-      {query && results.length === 0 && <p className="empty-message">No matching songs to add.</p>}
 
       {confirming && (
         <ConfirmDialog
