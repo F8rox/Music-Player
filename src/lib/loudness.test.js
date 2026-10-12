@@ -8,9 +8,9 @@ describe("normalisationGain", () => {
     expect(db(normalisationGain(-10, true))).toBeCloseTo(-6);
   });
 
-  it("boosts a quiet song, but never more than +4 dB", () => {
+  it("boosts a quiet song, but never more than +10 dB", () => {
     expect(db(normalisationGain(-18, true))).toBeCloseTo(2);
-    expect(db(normalisationGain(-30, true))).toBeCloseTo(4);
+    expect(db(normalisationGain(-34, true))).toBeCloseTo(10);
   });
 
   it("never cuts more than -12 dB", () => {

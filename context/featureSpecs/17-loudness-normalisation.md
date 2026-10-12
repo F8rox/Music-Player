@@ -9,12 +9,12 @@ Every song plays at about the same volume, using the loudness already measured i
 09, 10.
 
 ## Build
-- Pure `src/lib/loudness.js`: `normalisationGain(loudnessDb, enabled)` returns a linear gain toward a fixed target (-16 dB RMS), clamped between -12 dB and +4 dB so quiet songs never clip.
+- Pure `src/lib/loudness.js`: `normalisationGain(loudnessDb, enabled)` returns a linear gain toward a fixed target (-16 dB RMS), clamped between -12 dB and +10 dB (owner decision 2026-10-12, was +4).
 - Engine: a per-deck normalisation gain node before the fade gain; `setNorm(gain)` ramps the current deck over 0.3 s; crossfades and beat-matches set the incoming deck's gain before the blend.
 - Setting 'Normalise volume' (default on), validated and saved.
 
 ## Not In This Unit
-True LUFS measurement, a limiter, per-album gain.
+True LUFS measurement, per-album gain. (A limiter ahead of master was added with the +10 dB cap.)
 
 ## Acceptance Criteria
 - [ ] Tests: target maths, both clamps, disabled = 1, unanalysed = 1.

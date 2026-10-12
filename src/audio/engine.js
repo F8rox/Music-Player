@@ -72,20 +72,33 @@ const setNormOn = (deck, value) => {
   if (deck.norm) ramp(deck.norm.gain, value, value, 0);
 };
 
+const SOFT_CLIP = (() => {
+  const knee = 10 ** (-2 / 20);
+  return Float32Array.from({ length: 2049 }, (_, i) => {
+    const x = Math.abs((i / 1024) - 1);
+    return Math.sign(i - 1024) * (x <= knee ? x : knee + (1 - knee) * Math.tanh((x - knee) / (1 - knee)));
+  });
+})();
+
 const buildGraph = () => {
   deckEl();
   const ctx = new AudioContext();
   const master = ctx.createGain();
   const analyser = ctx.createAnalyser();
   master.gain.value = volume;
-  master.connect(analyser).connect(ctx.destination);
+  // Safety limiter ahead of the volume control: untouched up to -2 dB, then rounded toward full scale, so a
+  // boosted quiet song can't clip. (A DynamicsCompressorNode would add automatic makeup gain.)
+  const limiter = ctx.createWaveShaper();
+  limiter.curve = SOFT_CLIP;
+  limiter.oversample = "2x";
+  limiter.connect(master).connect(analyser).connect(ctx.destination);
   for (const deck of decks) {
     deck.gain = ctx.createGain(); // fades
     deck.norm = ctx.createGain(); // loudness normalisation (Unit 17), kept separate from fades
     deck.norm.gain.value = deck.normValue ?? 1;
-    ctx.createMediaElementSource(deck.el).connect(deck.norm).connect(deck.gain).connect(master);
+    ctx.createMediaElementSource(deck.el).connect(deck.norm).connect(deck.gain).connect(limiter);
   }
-  return { ctx, master, analyser };
+  return { ctx, master, limiter, analyser };
 };
 
 export const engine = {
@@ -153,7 +166,7 @@ export const engine = {
     source.playbackRate.value = rate;
     const segmentNorm = ctx.createGain();
     segmentNorm.gain.value = norm;
-    source.connect(segmentNorm).connect(segmentGain).connect(graph.master);
+    source.connect(segmentNorm).connect(segmentGain).connect(graph.limiter);
     const { out, into } = fadeCurves();
     decks[from].gain.gain.cancelScheduledValues(0);
     decks[from].gain.gain.setValueCurveAtTime(out, when, fadeSeconds);
