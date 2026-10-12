@@ -14,7 +14,7 @@ export const AllSongs = () => {
         <h2>All Songs ({songs.length})</h2>
         <ImportButton />
       </div>
-      <ul className="song-list">
+      <ul className="song-list panel">
         {songs.map((song, index) => (
           <li key={song.id}>
             <SongRow

@@ -4,6 +4,7 @@ import { Navbar } from "./components/Navbar";
 import { DropZone } from "./components/DropZone";
 import { ImportPanel } from "./components/ImportPanel";
 import { Notice } from "./components/Notice";
+import { WaveBackground } from "./components/WaveBackground";
 import { PlayerBar } from "./components/PlayerBar";
 import { QueuePanel } from "./components/QueuePanel";
 import { AllSongs } from "./pages/AllSongs";
@@ -23,6 +24,7 @@ function App() {
   return (
     <MusicProvider>
       <BrowserRouter>
+        <WaveBackground />
         <Navbar />
         <div className="layout">
           <main className="content">

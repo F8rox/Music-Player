@@ -47,7 +47,6 @@
   line-height: 1.5;
   color-scheme: dark;
   color: var(--text);
-  background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -56,45 +55,47 @@
   box-sizing: border-box;
 }
 
+/* The fallback gradient lives on <html>: a background on <body> would paint over the
+   z-index:-1 wave canvas. */
+html {
+  background: radial-gradient(120% 80% at 50% -10%, var(--bg-deep), var(--bg) 60%) fixed;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(120% 80% at 50% -10%, var(--bg-deep), var(--bg) 60%);
 }
 
-/* Ambient light: two blurred ribbons drifting slowly behind everything (transform only). */
-body::before,
-body::after {
-  content: "";
+/* Animated WebGL waves (WaveBackground) sit behind everything; body's gradient is the fallback. */
+.wave-background {
   position: fixed;
+  inset: 0;
   z-index: -1;
-  width: 70vw;
-  height: 45vh;
-  border-radius: 50%;
-  filter: blur(90px);
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  animation: drift 28s ease-in-out infinite alternate;
 }
 
-body::before {
-  top: -10vh;
-  left: -15vw;
-  background: var(--glow-blue);
+/* Text never sits directly on the light: lists live on a glass panel. */
+.panel {
+  padding: var(--space-2);
+  background: var(--surface);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
-body::after {
-  bottom: -5vh;
-  right: -20vw;
-  background: var(--glow-violet);
-  animation-duration: 34s;
-  animation-direction: alternate-reverse;
-}
-
-@keyframes drift {
-  to {
-    transform: translate(18vw, 12vh) rotate(18deg) scale(1.15);
-  }
+/* Brand: a glowing orb + "music player" in the sans/serif mix. */
+.brand-mark {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: var(--space-2);
+  vertical-align: -3px;
+  border-radius: var(--radius-full);
+  background: var(--gradient);
+  box-shadow: 0 0 16px var(--glow-blue), 0 0 32px var(--glow-violet);
 }
 
 button {
@@ -148,8 +149,9 @@ h2 {
 
 .brand-link {
   color: var(--text);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   text-decoration: none;
 }
 
@@ -931,8 +933,11 @@ h2 {
   flex-direction: column;
   justify-content: flex-end;
   gap: var(--space-2);
-  background: var(--surface);
-  backdrop-filter: blur(24px);
+  /* See-through at the top so the waves show; a scrim behind the text keeps it AA. */
+  background:
+    linear-gradient(90deg, var(--overlay) 0%, var(--overlay) 35%, transparent 70%),
+    linear-gradient(to top, var(--surface) 0%, transparent 60%);
+  backdrop-filter: blur(4px);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
