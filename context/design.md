@@ -1,5 +1,7 @@
 # Design
 
+> **2026-10-12 redesign (Unit 15):** the token table below is superseded by the `:root` block in `src/index.css` (near-black + BMW blue → violet, glass surfaces, Inter Variable + Instrument Serif italic). Components and rules below still apply.
+
 The look follows YouTube Music's layout and density, with this app's existing green accent kept. It is dark only.
 
 ## Theme Tokens

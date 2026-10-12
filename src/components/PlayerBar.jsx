@@ -1,3 +1,4 @@
+import { Icon } from "./Icon";
 import { formatTime } from "../lib/format";
 import { useMusic } from "../state/useMusic";
 import { usePlaybackTime } from "../state/usePlaybackTime";
@@ -32,24 +33,24 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
             disabled={disabled}
             onClick={toggleShuffle}
           >
-            🔀
+            <Icon name="shuffle" />
           </button>
-          <button className="control-btn" aria-label="Previous" disabled={disabled} onClick={prevTrack}>⏮</button>
+          <button className="control-btn" aria-label="Previous" disabled={disabled} onClick={prevTrack}><Icon name="prev" /></button>
           <button
             className="control-btn play-btn"
             aria-label={isPlaying ? "Pause" : "Play"}
             disabled={disabled}
             onClick={() => setIsPlaying(!isPlaying)}
           >
-            {isPlaying ? "⏸" : "▶"}
+            <Icon name={isPlaying ? "pause" : "play"} size={22} />
           </button>
-          <button className="control-btn" aria-label="Next" disabled={disabled} onClick={nextTrack}>⏭</button>
+          <button className="control-btn" aria-label="Next" disabled={disabled} onClick={nextTrack}><Icon name="next" /></button>
           <button
             className={`control-btn toggle-btn${repeat === "off" ? "" : " on"}`}
             aria-label={`Repeat ${repeat}`}
             onClick={cycleRepeat}
           >
-            🔁{repeat === "one" && <span className="repeat-badge" aria-hidden="true">1</span>}
+            <Icon name="repeat" />{repeat === "one" && <span className="repeat-badge" aria-hidden="true">1</span>}
           </button>
         </div>
         <div className="progress-container">
@@ -91,7 +92,7 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
           aria-controls="queue-panel"
           onClick={onToggleQueue}
         >
-          ☰
+          <Icon name="queue" />
         </button>
       </div>
     </footer>

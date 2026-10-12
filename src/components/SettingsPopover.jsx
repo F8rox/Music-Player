@@ -1,3 +1,4 @@
+import { Icon } from "./Icon";
 import { useState } from "react";
 import { useMusic } from "../state/useMusic";
 
@@ -20,7 +21,7 @@ export const SettingsPopover = () => {
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
-        ⚙
+        <Icon name="settings" />
       </button>
       {open && (
         <div className="menu settings-popover" role="group" aria-label="Playback settings">

@@ -1,24 +1,35 @@
 /* ---------- Tokens (the only place colors are defined) ---------- */
+/* Redesign 2026-10-12: near-black with a purple undertone, BMW blue → violet light. */
 :root {
-  --bg: #0f0f0f;
-  --surface: #1d1d1d;
-  --surface-raised: #2a2a2a;
-  --border: #ffffff1a;
-  --text: #f1f1f1;
-  --text-muted: #aaaaaa;
-  --accent: #10b981;
-  --accent-strong: #059669;
+  --bg: #07060d;
+  --bg-deep: #0d0b1a;
+  --surface: #16132bcc; /* glass: always paired with backdrop-filter */
+  --surface-raised: #221d44;
+  --border: #ffffff14;
+  --border-strong: #ffffff29;
+  --text: #f2f1fa;
+  --text-muted: #a9a6c8;
+  --accent: #5b9bff; /* text-safe blue (7.3:1 on bg) */
+  --accent-strong: #1c69d4; /* BMW blue, for fills */
+  --accent-2: #9d86ff; /* text-safe violet */
+  --violet: #5b3fe0;
   --danger: #f87171;
-  --focus: #7dd3fc;
-  --overlay: #000000b3;
+  --focus: #8fb8ff;
+  --overlay: #04030acc;
   --energy-1: #38bdf8;
-  --energy-2: #22d3ee;
-  --energy-3: #10b981;
-  --energy-4: #facc15;
-  --energy-5: #f97316;
+  --energy-2: #5b9bff;
+  --energy-3: #9d86ff;
+  --energy-4: #d06bff;
+  --energy-5: #ff6ba6;
+  --gradient: linear-gradient(135deg, #1c69d4, #5b3fe0);
+  --gradient-text: linear-gradient(100deg, #8fb8ff, #c4b5ff);
+  --glow-blue: #1c69d473;
+  --glow-violet: #5b3fe066;
+  --shadow: 0 24px 60px -20px #000000cc;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 999px;
   --space-1: 4px;
   --space-2: 8px;
@@ -26,11 +37,13 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-8: 40px;
 
-  --player-height: 72px;
-  --queue-width: 360px;
+  --player-height: 88px;
+  --queue-width: 380px;
+  --font-serif: "Instrument Serif", Georgia, serif;
 
-  font-family: Inter, system-ui, sans-serif;
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
   line-height: 1.5;
   color-scheme: dark;
   color: var(--text);
@@ -46,6 +59,42 @@
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(120% 80% at 50% -10%, var(--bg-deep), var(--bg) 60%);
+}
+
+/* Ambient light: two blurred ribbons drifting slowly behind everything (transform only). */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  width: 70vw;
+  height: 45vh;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  animation: drift 28s ease-in-out infinite alternate;
+}
+
+body::before {
+  top: -10vh;
+  left: -15vw;
+  background: var(--glow-blue);
+}
+
+body::after {
+  bottom: -5vh;
+  right: -20vw;
+  background: var(--glow-violet);
+  animation-duration: 34s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes drift {
+  to {
+    transform: translate(18vw, 12vh) rotate(18deg) scale(1.15);
+  }
 }
 
 button {
@@ -62,53 +111,86 @@ button {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   margin: 0 0 var(--space-4);
 }
 
-/* ---------- Navbar ---------- */
+/* Editorial accent: an italic serif word inside a sans headline. */
+.serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.gradient-text {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Navbar (glass) ---------- */
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-3) var(--space-6);
+  padding: var(--space-4) var(--space-8);
+  background: var(--surface);
+  backdrop-filter: blur(18px) saturate(140%);
   border-bottom: 1px solid var(--border);
 }
 
 .brand-link {
   color: var(--text);
   font-weight: 700;
+  letter-spacing: 0.04em;
   text-decoration: none;
 }
 
 .navbar-links {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
 }
 
 .nav-link {
   color: var(--text-muted);
   text-decoration: none;
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  transition: background 150ms ease, color 150ms ease;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: var(--text);
+}
+
 .nav-link.active {
   color: var(--text);
-  background: var(--surface-raised);
+  background: var(--gradient);
 }
 
 /* ---------- Layout ---------- */
 .layout {
   display: flex;
-  padding-bottom: var(--player-height);
+  padding-bottom: calc(var(--player-height) + var(--space-8));
 }
 
 .content {
   flex: 1;
   min-width: 0;
-  padding: var(--space-6);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-8);
 }
 
 /* ---------- Song rows ---------- */
@@ -122,9 +204,10 @@ h2 {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding-right: var(--space-1);
-  border-radius: var(--radius-sm);
-  transition: background 150ms ease;
+  padding-right: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: background 150ms ease, border-color 150ms ease;
 }
 
 .song-play {
@@ -134,17 +217,22 @@ h2 {
   grid-template-columns: 2rem 1fr auto auto;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .song-row:hover {
-  background: var(--surface-raised);
+  background: var(--surface);
+  border-color: var(--border);
 }
 
-.song-row.active .song-title,
+.song-row.active {
+  background: linear-gradient(90deg, var(--glow-blue), transparent 70%);
+  border-color: var(--border-strong);
+}
+
 .song-row.active .song-index {
   color: var(--accent);
 }
@@ -182,17 +270,24 @@ h2 {
 }
 
 /* ---------- Player bar ---------- */
+/* A floating glass dock rather than a full-width bar. */
 .player-bar {
   position: fixed;
-  inset: auto 0 0 0;
+  left: var(--space-6);
+  right: var(--space-6);
+  bottom: var(--space-4);
   height: var(--player-height);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-4);
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-6);
   background: var(--surface);
-  border-top: 1px solid var(--border);
+  backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
   z-index: 10;
 }
 
@@ -210,7 +305,8 @@ h2 {
 
 .track-title {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .track-artist {
@@ -247,18 +343,20 @@ h2 {
   background: var(--surface-raised);
 }
 
-/* Emoji glyphs carry their own colors; grayscale + opacity makes off/on readable. */
+.control-btn {
+  display: inline-grid;
+  place-items: center;
+}
+
 .toggle-btn {
   position: relative;
-  filter: grayscale(1);
-  opacity: 0.6;
+  color: var(--text-muted);
 }
 
 .toggle-btn[aria-pressed="true"],
 .toggle-btn.on {
-  filter: none;
-  opacity: 1;
-  box-shadow: inset 0 -2px 0 var(--accent);
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px var(--glow-blue));
 }
 
 .repeat-badge {
@@ -360,14 +458,18 @@ h2 {
 }
 
 .play-btn {
-  width: 40px;
-  height: 40px;
-  background: var(--text);
-  color: var(--bg);
+  width: 48px;
+  height: 48px;
+  background: var(--gradient);
+  color: var(--text);
+  box-shadow: 0 8px 24px var(--glow-blue);
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
 .play-btn:hover {
-  background: var(--text-muted);
+  background: var(--gradient);
+  transform: scale(1.06);
+  box-shadow: 0 10px 32px var(--glow-violet);
 }
 
 .progress-container {
@@ -390,7 +492,7 @@ h2 {
   height: 4px;
   appearance: none;
   border-radius: var(--radius-full);
-  background: linear-gradient(to right, var(--accent) var(--progress), var(--border) var(--progress));
+  background: var(--gradient) 0 0 / var(--progress) 100% no-repeat, var(--border-strong);
   cursor: pointer;
 }
 
@@ -405,6 +507,7 @@ h2 {
   height: 12px;
   border-radius: var(--radius-full);
   background: var(--text);
+  box-shadow: 0 0 12px var(--glow-blue);
 }
 
 .progress-bar::-moz-range-thumb,
@@ -417,16 +520,21 @@ h2 {
 }
 
 /* ---------- Up next panel ---------- */
+/* Floating glass card beside the content (sticky under the navbar, above the dock). */
 .queue-panel {
   width: var(--queue-width);
   flex-shrink: 0;
   position: sticky;
-  top: 0;
-  height: calc(100vh - var(--player-height));
+  top: 96px;
+  height: calc(100vh - 96px - var(--player-height) - var(--space-8));
+  margin: var(--space-6) var(--space-6) 0 0;
   overflow-y: auto;
   padding: var(--space-4);
   background: var(--surface);
-  border-left: 1px solid var(--border);
+  backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
 }
 
 .queue-header {
@@ -437,12 +545,8 @@ h2 {
 }
 
 .queue-header h2 {
-  margin-right: auto;
-}
-
-.queue-header h2 {
+  margin: 0 auto 0 0;
   font-size: 1rem;
-  margin: 0;
 }
 
 .empty-message {
@@ -462,6 +566,8 @@ h2 {
     bottom: var(--player-height);
     height: auto;
     width: min(var(--queue-width), 100%);
+    margin: 0;
+    border-radius: 0;
     z-index: 30;
     animation: drawer-in 150ms ease;
   }
@@ -518,20 +624,23 @@ h2 {
 }
 
 .primary-btn {
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--gradient);
+  color: var(--text);
+  box-shadow: 0 8px 24px -8px var(--glow-blue);
 }
 
 .primary-btn:hover {
-  background: var(--accent-strong);
+  box-shadow: 0 10px 30px -6px var(--glow-violet);
 }
 
 .secondary-btn {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
 }
 
 .secondary-btn:hover {
-  background: var(--surface-raised);
+  border-color: var(--accent);
 }
 
 .danger-btn {
@@ -809,4 +918,100 @@ h2 {
   align-items: center;
   gap: var(--space-2);
   font-size: 0.875rem;
+}
+
+/* ---------- Now playing hero ---------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  margin-bottom: var(--space-8);
+  padding: var(--space-8);
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  background: var(--surface);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* The glow behind the title takes the playing track's energy colour. */
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -40% 30% 20% -10%;
+  background: radial-gradient(closest-side, var(--hero-glow, var(--glow-blue)), transparent);
+  filter: blur(40px);
+  opacity: 0.55;
+  transition: background 600ms ease;
+}
+
+.hero-energy-1 { --hero-glow: var(--energy-1); }
+.hero-energy-2 { --hero-glow: var(--energy-2); }
+.hero-energy-3 { --hero-glow: var(--energy-3); }
+.hero-energy-4 { --hero-glow: var(--energy-4); }
+.hero-energy-5 { --hero-glow: var(--energy-5); }
+
+.hero-label {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  margin: 0;
+  max-width: 18ch;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.hero-artist,
+.hero-sub {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+}
+
+.hero-artist .serif {
+  color: var(--text);
+  font-size: 1.5rem;
+}
+
+.hero-sub {
+  max-width: 46ch;
+  font-size: 1rem;
+  margin-bottom: var(--space-3);
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-play {
+  margin-left: auto;
+  width: 64px;
+  height: 64px;
+  font-size: 1.25rem;
 }

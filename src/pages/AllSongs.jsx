@@ -1,4 +1,5 @@
 import { ImportButton } from "../components/ImportButton";
+import { NowPlayingHero } from "../components/NowPlayingHero";
 import { SongMenu } from "../components/SongMenu";
 import { SongRow } from "../components/SongRow";
 import { useMusic } from "../state/useMusic";
@@ -8,6 +9,7 @@ export const AllSongs = () => {
   const ids = songs.map((song) => song.id);
   return (
     <section>
+      <NowPlayingHero />
       <div className="page-header">
         <h2>All Songs ({songs.length})</h2>
         <ImportButton />
