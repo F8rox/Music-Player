@@ -1,12 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMusic } from "../state/useMusic";
 
 const hasFiles = (e) => [...(e.dataTransfer?.types ?? [])].includes("Files");
 
 // Whole-page drop target, shown only while files are dragged over the window.
 export const DropZone = () => {
-  const { importFiles, importing } = useMusic();
+  const music = useMusic();
   const [active, setActive] = useState(false);
+  // The provider re-renders several times a second while playing; read the latest
+  // actions through a ref so the window listeners (and the drag counter) persist.
+  const latest = useRef(music);
+  useEffect(() => {
+    latest.current = music;
+  });
 
   useEffect(() => {
     let depth = 0; // dragenter/leave fire for every child; count to know when we really left
@@ -26,7 +32,7 @@ export const DropZone = () => {
       e.preventDefault();
       depth = 0;
       setActive(false);
-      if (!importing) importFiles([...e.dataTransfer.files]);
+      if (!latest.current.importing) latest.current.importFiles([...e.dataTransfer.files]);
     };
     window.addEventListener("dragenter", enter);
     window.addEventListener("dragover", over);
@@ -38,7 +44,7 @@ export const DropZone = () => {
       window.removeEventListener("dragleave", leave);
       window.removeEventListener("drop", drop);
     };
-  }, [importFiles, importing]);
+  }, []);
 
   return active ? <div className="drop-zone" aria-hidden="true">Drop to add</div> : null;
 };
