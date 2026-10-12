@@ -24,7 +24,7 @@ This is a client-only app with no backend, no accounts and no secrets. Its attac
 - On GitHub Pages, CSP is set with a `<meta http-equiv="Content-Security-Policy">` in the production build: `default-src 'self'; media-src 'self' blob:; img-src 'self' blob: data:; style-src 'self'; script-src 'self'; worker-src 'self' blob:`. Not enforced in dev, where Vite injects inline styles.
 
 ## Copyright
-- The commercial mp3s are replaced by free-licensed demo tracks (CC0 or CC-BY), credited on an About page and in `public/songs/CREDITS.md`. Only those are committed.
+- No audio is committed: the app ships empty and `.gitignore` excludes `public/songs/` and `*.mp3`. A clean clone has 0 tracked audio files.
 - Imported user files are stored only in the user's own browser.
 
 ## Security Checklist For Every Unit

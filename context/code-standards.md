@@ -41,17 +41,15 @@
 - Commit messages are conventional (`feat(queue): ...`, `fix(player): ...`, `chore: ...`).
 
 ## Size Limits
-- Files of 200 lines or fewer (`src/index.css` is exempt; `src/audio/engine.js` is a recorded exception at about 213 lines, because splitting it would spread its module-private deck/transition state across files). Functions of 50 lines or fewer. Split a file by component or concern when it grows past this.
+- Files of 200 lines or fewer (`src/index.css` is exempt; `src/audio/engine.js` is a recorded exception at about 245 lines, because splitting it would spread its module-private deck/transition state across files). Functions of 50 lines or fewer. Split a file by component or concern when it grows past this.
 
 ## File Organization
 
 ```
-public/songs/                 free-licensed demo tracks + CREDITS.md (committed)
 src/
   main.jsx
   App.jsx                     routes and layout shell
   index.css                   tokens + component styles
-  data/songs.js               bundled demo track list
   lib/                        pure rules, each with *.test.js
     format.js  queue.js  storage.js  playlists.js  arrange.js  tags.js (tag sanitising)
   library/                    the only IndexedDB code

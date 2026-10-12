@@ -50,12 +50,12 @@ This app needs no keys or credentials. If a future unit needs one, the rule is:
 2. Use a fallback and keep building. Mark the affected criteria "blocked on input".
 3. Ask at the end of the unit. Never ask for secret values in chat. The user puts them in `.env.local`.
 
-The free-licensed demo tracks (Unit 07) are an owner input. Until they arrive, keep the current local files, mark that criterion "blocked on input", and keep building. Real songs with known tempos for the Unit 10 accuracy table can be the owner's or any free-licensed tracks with a published BPM.
+There are no demo tracks (owner decision, 2026-10-13): the published app ships empty and users add their own music. Real songs with known tempos for the Unit 10 accuracy table can be the owner's or any free-licensed tracks with a published BPM, kept outside the repo.
 
 ## Protected Files
 
 - Don't modify `node_modules`, the dnd-kit internals or `package-lock.json` by hand.
-- Don't rename or re-encode the files in `public/songs/`. Reference them as they are named.
+- `public/songs/` is no longer used by the app and is gitignored. Leave any files the owner keeps there untouched, and never commit audio.
 
 ## Keeping Docs In Sync
 

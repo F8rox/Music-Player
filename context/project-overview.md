@@ -52,7 +52,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 
 ## Auto-DJ Behaviour
 
-- **Analysis:** runs once per song, when it's added (bundled songs on first launch). It processes one song at a time with visible progress, and the results are cached. A song can play before its analysis finishes; until then it uses a plain transition.
+- **Analysis:** runs once per song, when it's added. It processes one song at a time with visible progress, and the results are cached. A song can play before its analysis finishes; until then it uses a plain transition.
 - **Energy:** the loudness and density of a song, ranked against the rest of the user's library (a percentile, not an absolute number), because mastering loudness varies widely.
 - **Tempo:** shown as approximate ("~124 BPM"). The user can halve, double or tap it to correct it, and a corrected value is kept.
 - **Arrange my queue:** reorders only the items after the current one. Energy rises to a peak about 65–75% of the way through, then falls; neighbouring songs avoid big tempo jumps. One "Undo arrange" is offered until the queue next changes. With fewer than 4 items after the current one, it does nothing and says why.
@@ -64,7 +64,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 ## User Flows
 
 ### First Run
-1. Open the app. The free-licensed demo tracks are listed, and a prominent "Add your music" button shows a drop zone.
+1. Open the app. It starts empty, with a prominent "Add your music" button and a drop zone.
 2. Drag in a folder's files, or pick files. Each song appears immediately with its title and artist from its tags (or its filename), then shows an analysis progress indicator that turns into an energy dot and "~BPM" when done.
 
 ### Listen Flow
@@ -91,7 +91,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 - Everything already built (Units 01–06)
 - Importing local audio files (picker and drag-and-drop; on Chromium, optionally a folder), stored in IndexedDB, with tag and cover-art reading
 - Removing imported songs, and showing storage use; requesting persistent storage
-- Free-licensed (CC0/CC-BY) demo tracks with credits, replacing the commercial mp3s
+- An About page with the privacy note and credits. The app ships with no music.
 - Playlists in localStorage
 - Loudness normalisation, musical key, Start radio, the Draw-your-vibe map and local synced lyrics (.lrc files the user imports), all computed or stored in the browser (Units 17–21)
 - The Web Audio playback engine, the analysis, Arrange my queue, smart crossfade, the visualiser and experimental beat-matching
@@ -101,7 +101,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 ### Out Of Scope
 - YouTube, YouTube Music, Spotify or any streaming API or embed
 - A backend, accounts, login, uploads to any server, or sync between devices
-- Any network request except same-origin app files and bundled demo tracks
+- Any network request except same-origin app files
 - Fetching lyrics or album art from the internet, recommendations from other users, likes and ratings
 - Equalizer, playback speed control, pitch-preserving time-stretch
 - Downloads, an offline/PWA install, desktop or mobile app packaging
@@ -114,4 +114,4 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 - A transition between two analysed songs has no silence gap, and a skip mid-fade never leaves two songs playing.
 - A song whose tempo is wrongly detected never gets beat-matched badly: it falls back to the plain crossfade.
 - Corrupt saved data or a corrupt audio file never crashes the app.
-- `npm run lint`, `npm test` and `npm run build` pass on a clean checkout, and the GitHub Pages build plays the demo tracks.
+- `npm run lint`, `npm test` and `npm run build` pass on a clean checkout, and the GitHub Pages build starts empty and plays songs the user adds.

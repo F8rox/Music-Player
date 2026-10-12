@@ -21,7 +21,6 @@ No backend and no environment variables. No network calls except same-origin app
 ## System Boundaries
 
 ```
-src/data/songs.js           bundled demo tracks (free-licensed, with credits)
 src/lib/*.js                pure rules: queue, playlists, arrange, storage parse, format
 src/library/*.js            IndexedDB access: songs, blobs, analysis cache (the only IndexedDB users)
 src/audio/engine.js         module singleton: AudioContext, two decks, master gain, analyser, fades
@@ -67,7 +66,7 @@ AnalysisResult = {
 }
 ```
 
-- **Song ids:** bundled demo songs keep short ids (`"1"`…). Imported songs use `"u:" + SHA-256 of the file`, so importing the same file twice is a no-op.
+- **Song ids:** every song is imported, with the id `"u:" + SHA-256 of the file`, so importing the same file twice is a no-op. There are no bundled songs.
 - **Library load order:** on startup the library is read from IndexedDB first, then localStorage is parsed against the full set of known song ids. Unknown ids (for example, a song deleted in another tab) are dropped.
 - **Energy:** derived at use time as a percentile of `loudness` and `onsetDensity` across the analysed library. It isn't stored, so it stays correct as the library grows.
 - **Queue rules** are unchanged from Units 04–06. While unshuffled, `order` mirrors position; while shuffled, orders are frozen and new items get `max + 1`.
