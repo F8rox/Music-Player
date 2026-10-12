@@ -37,7 +37,6 @@ export const SongRow = ({ song, index, duration, active, onPlay, actions, note }
       <span className="song-text">
         <span className="song-title">{song.title}</span>
         <span className="song-artist">
-          {song.imported && <span className="yours-tag">Yours</span>}
           {song.artist}
         </span>
         {note && <span className="song-note">{note}</span>}

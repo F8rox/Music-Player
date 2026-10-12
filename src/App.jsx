@@ -8,6 +8,7 @@ import { WaveBackground } from "./components/WaveBackground";
 import { PlayerBar } from "./components/PlayerBar";
 import { LyricsPanel } from "./components/LyricsPanel";
 import { QueuePanel } from "./components/QueuePanel";
+import { About } from "./pages/About";
 import { AllSongs } from "./pages/AllSongs";
 import { PlaylistDetail } from "./pages/PlaylistDetail";
 import { Playlists } from "./pages/Playlists";
@@ -30,7 +31,7 @@ function App() {
 
   return (
     <MusicProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <WaveBackground />
         <Navbar />
         <div className="layout">
@@ -38,6 +39,7 @@ function App() {
             <Routes>
               <Route path="/" element={<AllSongs />} />
               <Route path="/vibe" element={<VibeMap />} />
+              <Route path="/about" element={<About />} />
               <Route path="/playlists" element={<Playlists />} />
               <Route path="/playlists/:id" element={<PlaylistDetail />} />
             </Routes>

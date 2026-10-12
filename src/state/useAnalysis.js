@@ -3,8 +3,6 @@ import { analyseBlob } from "../audio/analysis/analyse";
 import { ANALYSIS_VERSION } from "../audio/analysis/dsp";
 import { getBlob, listAnalysis, putAnalysis } from "../library/db";
 
-const fetchBlob = async (song) => (song.url ? (await fetch(song.url)).blob() : getBlob(song.id));
-
 // { [songId]: AnalysisResult | "pending" | "failed" }. Cached results load once; missing or outdated
 // songs are analysed one at a time (Invariant 10), yielding between songs so the UI stays responsive.
 // An outdated result stays usable until its replacement arrives, and its tapped tempo carries over.
@@ -31,7 +29,7 @@ export const useAnalysis = (songs) => {
       const song = queue.current.shift();
       let result = null;
       try {
-        const blob = await fetchBlob(song);
+        const blob = await getBlob(song.id);
         result = blob && (await analyseBlob(song.id, blob));
         if (result) result.bpmOverride = carried.current[song.id] ?? null;
         if (result) await putAnalysis(song.id, result);

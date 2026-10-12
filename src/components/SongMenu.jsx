@@ -71,11 +71,9 @@ export const SongMenu = ({ song }) => {
               Fix tempo…
             </button>
           )}
-          {song.imported && (
-            <button type="button" role="menuitem" onClick={() => { setOpen(false); setConfirming(true); }}>
-              Remove from library
-            </button>
-          )}
+          <button type="button" role="menuitem" onClick={() => { setOpen(false); setConfirming(true); }}>
+            Remove from library
+          </button>
         </div>
       )}
       {fixingTempo && <TempoDialog song={song} onClose={() => setFixingTempo(false)} />}

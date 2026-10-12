@@ -7,7 +7,7 @@ import { checkFile, readLyrics } from "./importFiles";
 const id = (n) => "u:" + String(n).repeat(64).slice(0, 64);
 const record = (n, extra = {}) => ({
   id: id(n), title: `Song ${n}`, artist: "A", album: "", durationSec: 180, addedAt: n,
-  mime: "audio/mpeg", size: 10, hasCover: false, imported: true, ...extra,
+  mime: "audio/mpeg", size: 10, hasCover: false, ...extra,
 });
 const rawStore = createStore("music-player", "library");
 

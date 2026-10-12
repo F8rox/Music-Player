@@ -22,7 +22,6 @@ export const validSong = (raw) => {
     mime: typeof raw.mime === "string" ? raw.mime.slice(0, 50) : "",
     size: finite(raw.size),
     hasCover: raw.hasCover === true,
-    imported: true,
   };
 };
 

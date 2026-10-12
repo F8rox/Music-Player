@@ -34,12 +34,12 @@ const release = (id) => {
   }, GRACE_MS);
 };
 
-// Bundled songs have a static URL; imported songs get a shared object URL. null while loading.
+// The song's shared object URL, null while loading.
 export const useSongUrl = (song) => {
   const [loaded, setLoaded] = useState(null);
 
   useEffect(() => {
-    if (!song || song.url) return;
+    if (!song) return;
     let live = true;
     let held = false;
     acquire(song.id).then((url) => {
@@ -55,6 +55,5 @@ export const useSongUrl = (song) => {
   }, [song]);
 
   if (!song) return null;
-  if (song.url) return song.url;
   return loaded?.id === song.id ? loaded.url : null;
 };

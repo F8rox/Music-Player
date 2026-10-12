@@ -272,6 +272,29 @@ h2 {
   font-size: 0.75rem;
 }
 
+/* ---------- About ---------- */
+.about-card {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding: var(--space-5);
+}
+
+.about-card h3,
+.about-card p,
+.about-card ul {
+  margin: 0;
+}
+
+.about-card p,
+.about-card li {
+  color: var(--text-muted);
+}
+
+.about-card ul {
+  padding-left: var(--space-5);
+}
+
 /* ---------- Lyrics ---------- */
 .lyrics-list {
   display: grid;
@@ -780,15 +803,6 @@ h2 {
 .secondary-btn:disabled {
   opacity: 0.5;
   cursor: default;
-}
-
-.yours-tag {
-  margin-right: var(--space-1);
-  padding: 0 var(--space-1);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-sm);
-  color: var(--accent);
-  font-size: 0.625rem;
 }
 
 .drop-zone {

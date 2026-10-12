@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { engine } from "../audio/engine";
-import { songs as bundled } from "../data/songs";
 import * as Q from "../lib/queue";
 import { foldBpm } from "../audio/analysis/dsp";
 import { arrange } from "../lib/arrange";
@@ -13,7 +12,6 @@ import { tempoOf } from "../lib/tempo";
 import { MusicContext } from "./useMusic";
 import { useAnalysis } from "./useAnalysis";
 import { useCrossfade } from "./useCrossfade";
-import { useDurations } from "./useDurations";
 import { useLibrary } from "./useLibrary";
 import { useLyrics } from "./useLyrics";
 import { usePlayback } from "./usePlayback";
@@ -28,7 +26,7 @@ export const MusicProvider = ({ children }) => {
 };
 
 const PlayerState = ({ library, children }) => {
-  const songs = useMemo(() => [...bundled, ...library.songs], [library.songs]);
+  const songs = library.songs;
   const songById = (id) => songs.find((song) => song.id === id) ?? null;
   const [saved] = useState(() => load(new Set(songs.map((song) => song.id))));
   const [queue, setQueue] = useState(saved.queue);
@@ -39,8 +37,7 @@ const PlayerState = ({ library, children }) => {
   const [arrangeUndo, setArrangeUndo] = useState(null); // { before, after } item arrays
   const [notice, setNotice] = useState(() =>
     library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
-  const probed = useDurations(bundled);
-  const durationOf = (song) => probed[song.id] ?? song.durationSec;
+  const durationOf = (song) => song.durationSec;
   const { analysis, setTempo } = useAnalysis(songs);
   const energy = useMemo(() => energyLevels(Object.fromEntries(
     songs.filter((song) => typeof analysis[song.id] === "object").map((song) => [song.id, analysis[song.id]]),

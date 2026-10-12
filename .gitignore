@@ -28,5 +28,6 @@ dist-ssr
 .env.*
 !.env.example
 
-# Bundled songs are commercial recordings; keep them out of git
-public/songs/*.mp3
+# The app ships empty and users import their own music; never commit audio
+public/songs/
+*.mp3

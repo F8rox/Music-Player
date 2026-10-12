@@ -83,7 +83,7 @@ export const importFile = async (file) => {
     if (!(await fits(file.size + (cover?.size ?? 0)))) return { status: "no-space" };
     const song = {
       id, ...songInfo(common, file.name), durationSec, addedAt: Date.now(),
-      mime: file.type, size: file.size, hasCover: Boolean(cover), imported: true,
+      mime: file.type, size: file.size, hasCover: Boolean(cover),
     };
     await addSong(song, file, cover);
     return { status: "added", song };
