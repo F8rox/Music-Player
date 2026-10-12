@@ -43,6 +43,9 @@ The app is a Vite + React tutorial-stage player. Checked on 2026-10-12:
 
 Clean: lint, 92 tests, build, `npm audit` 0, no colours outside `:root`, no unsafe HTML or eval, no lists keyed by index, no `console.log`, every file ≤ 151 lines, only `storage.js` and `db.js` touch storage, no `react-router-dom`.
 
+## Audit (Helper B, 2026-10-12, after Prompt 2B)
+Clean: lint, 147 tests, build, `npm audit` 0, no colours outside `:root`, no unsafe HTML/eval/console, only `storage.js` and `db.js` touch storage, only `engine.js` creates playback audio (the import and duration probes are detached, as allowed). Low: MusicProvider is at 191/200 lines (new Auto-DJ logic goes in hooks); one justified `eslint-disable` in useCrossfade (the prepare effect keys on primitives, not the per-render plan object).
+
 ## In Progress
 None.
 
