@@ -52,7 +52,7 @@ export const SettingsPopover = () => {
             step="1"
             value={settings.fadeSeconds}
             disabled={!settings.crossfade}
-            aria-valuetext={`${settings.fadeSeconds} seconds`}
+            aria-valuetext={`Fade ${settings.fadeSeconds} seconds`}
             onChange={(e) => update({ fadeSeconds: Number(e.target.value) })}
           />
           <label className="setting-row">

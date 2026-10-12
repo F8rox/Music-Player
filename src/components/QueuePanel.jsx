@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useMusic } from "../state/useMusic";
+import { useFocusTrap } from "./useFocusTrap";
 import { LiveSeekBar, RepeatButton, ShuffleButton, VolumeSlider } from "./PlayerControls";
 import { SettingsPopover } from "./SettingsPopover";
 import { SongRow } from "./SongRow";
@@ -11,6 +12,8 @@ export const QueuePanel = ({ onClose }) => {
     arrangeQueue, undoArrange, canUndoArrange,
   } = useMusic();
   const closeRef = useRef(null);
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef);
 
   useEffect(() => {
     closeRef.current.focus();
@@ -23,7 +26,7 @@ export const QueuePanel = ({ onClose }) => {
   return (
     <>
       <div className="queue-backdrop" onClick={onClose} />
-      <aside className="queue-panel" id="queue-panel" aria-label="Up next">
+      <aside ref={panelRef} className="queue-panel" id="queue-panel" aria-label="Up next">
         <div className="queue-header">
           <h2>Up next</h2>
           <button

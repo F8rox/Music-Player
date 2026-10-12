@@ -31,7 +31,18 @@ export const SongMenu = ({ song }) => {
   return (
     <div
       className="song-menu"
-      onKeyDown={(e) => e.key === "Escape" && open && close()}
+      onKeyDown={(e) => {
+        if (!open) return;
+        if (e.key === "Escape") return close();
+        // Arrow keys, Home and End move between the menu items.
+        const items = [...menuRef.current.querySelectorAll("[role=menuitem]")];
+        const at = items.indexOf(document.activeElement);
+        const target = { ArrowDown: items[(at + 1) % items.length], ArrowUp: items[(at - 1 + items.length) % items.length], Home: items[0], End: items.at(-1) }[e.key];
+        if (target) {
+          e.preventDefault();
+          target.focus();
+        }
+      }}
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && (setOpen(false), setPicking(false))}
     >
       <button

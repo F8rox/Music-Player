@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { engine } from "../audio/engine";
 import { activeIndex } from "../lib/lrc";
 import { useMusic } from "../state/useMusic";
+import { useFocusTrap } from "./useFocusTrap";
 
 // Synced lyrics for the current song: the line being sung is highlighted and centred, and clicking
 // a line seeks there. The position is read from the engine every frame, but React only re-renders
@@ -11,6 +12,8 @@ export const LyricsPanel = ({ onClose }) => {
   const [active, setActive] = useState(-1);
   const listRef = useRef(null);
   const closeRef = useRef(null);
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef);
 
   useEffect(() => {
     closeRef.current.focus();
@@ -37,7 +40,7 @@ export const LyricsPanel = ({ onClose }) => {
   return (
     <>
       <div className="queue-backdrop" onClick={onClose} />
-      <aside className="queue-panel" id="lyrics-panel" aria-label="Lyrics">
+      <aside ref={panelRef} className="queue-panel" id="lyrics-panel" aria-label="Lyrics">
         <div className="queue-header">
           <h2>Lyrics</h2>
           <button ref={closeRef} type="button" className="control-btn" aria-label="Close lyrics" onClick={onClose}>

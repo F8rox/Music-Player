@@ -280,7 +280,7 @@ h2 {
   padding: var(--space-5);
 }
 
-.about-card h3,
+.about-card h2,
 .about-card p,
 .about-card ul {
   margin: 0;
@@ -391,7 +391,7 @@ h2 {
   padding: var(--space-4);
 }
 
-.vibe-result h3 {
+.vibe-result h2 {
   margin: 0;
 }
 
@@ -1136,8 +1136,9 @@ h2 {
   box-shadow: var(--shadow);
 }
 
-.playlist-header h2 {
+.playlist-header h1 {
   font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 600;
   letter-spacing: -0.03em;
   margin: 0;
 }

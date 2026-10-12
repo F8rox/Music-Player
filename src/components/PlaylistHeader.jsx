@@ -43,7 +43,7 @@ export const PlaylistHeader = ({ playlist, onDelete }) => {
         </form>
       ) : (
         <div>
-          <h2>{playlist.name}</h2>
+          <h1>{playlist.name}</h1>
           <p className="song-artist">
             {count} {count === 1 ? "song" : "songs"} · {formatTime(total)}
           </p>

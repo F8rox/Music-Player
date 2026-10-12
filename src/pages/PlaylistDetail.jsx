@@ -20,7 +20,7 @@ export const PlaylistDetail = () => {
   if (!playlist) {
     return (
       <section>
-        <h2>Playlist not found</h2>
+        <h1 className="page-title">Playlist not found</h1>
         <Link to="/playlists">Back to playlists</Link>
       </section>
     );

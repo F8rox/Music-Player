@@ -42,7 +42,7 @@ export const VibeMap = () => {
   if (vibeSongs.length < 3) {
     return (
       <section>
-        <div className="page-header"><h2>Draw your vibe</h2></div>
+        <div className="page-header"><h1 className="page-title">Draw your vibe</h1></div>
         <p className="empty-message">Add a few more songs and wait for them to be analysed, then you can draw a vibe.</p>
       </section>
     );
@@ -54,7 +54,7 @@ export const VibeMap = () => {
   return (
     <section>
       <div className="page-header">
-        <h2>Draw your vibe</h2>
+        <h1 className="page-title">Draw your vibe</h1>
         <div className="import-actions" role="group" aria-label="Preset shapes">
           {PRESETS.map((preset) => (
             <button key={preset.id} type="button" className="secondary-btn" onClick={() => setPath(preset.path)}>
@@ -97,7 +97,7 @@ export const VibeMap = () => {
       {picks.length > 0 ? (
         <div className="vibe-result panel">
           <div className="page-header">
-            <h3>{picks.length} songs along your path</h3>
+            <h2>{picks.length} songs along your path</h2>
             <div className="import-actions">
               <button type="button" className="secondary-btn" onClick={() => setPath([])}>Clear</button>
               <button type="button" className="primary-btn" onClick={() => playVibe(picks)}>Play this vibe</button>
