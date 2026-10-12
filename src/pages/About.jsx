@@ -1,4 +1,4 @@
-// Static page: privacy note and credits. No data is read from storage or the network.
+// Static page: the privacy note and how the app works. No data is read from storage or the network.
 export const About = () => (
   <section className="about">
     <div className="page-header"><h1 className="page-title">About</h1></div>
