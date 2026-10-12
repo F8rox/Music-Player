@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { analyse, estimateBpm, estimateKey, foldBpm, introOutro, onsetEnvelope, rmsEnvelope } from "./dsp";
+import { analyse, estimateBpm, foldBpm, introOutro, onsetEnvelope, rmsEnvelope } from "./dsp";
+import { estimateKey } from "./key";
 
 const RATE = 11025;
 const FPS = RATE / 128;

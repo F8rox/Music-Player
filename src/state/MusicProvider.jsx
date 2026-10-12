@@ -1,16 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { engine } from "../audio/engine";
 import * as Q from "../lib/queue";
-import { foldBpm } from "../audio/analysis/dsp";
-import { arrange } from "../lib/arrange";
 import { energyLevels } from "../lib/energy";
-import { keyOf } from "../lib/key";
-import { radio } from "../lib/radio";
-import { toPoint } from "../lib/vibe";
 import { load, save } from "../lib/storage";
-import { tempoOf } from "../lib/tempo";
 import { MusicContext } from "./useMusic";
 import { useAnalysis } from "./useAnalysis";
+import { useAutoDj } from "./useAutoDj";
 import { useCrossfade } from "./useCrossfade";
 import { useLibrary } from "./useLibrary";
 import { useLyrics } from "./useLyrics";
@@ -33,8 +28,6 @@ const PlayerState = ({ library, children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(saved.volume);
   const [repeat, setRepeat] = useState(saved.repeat);
-  // shortcut: undo lives in memory only (lost on refresh); persist it if users ask.
-  const [arrangeUndo, setArrangeUndo] = useState(null); // { before, after } item arrays
   const [notice, setNotice] = useState(() =>
     library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
   const durationOf = (song) => song.durationSec;
@@ -104,6 +97,8 @@ const PlayerState = ({ library, children }) => {
     };
   }, [isPlaying]);
 
+  const autoDj = useAutoDj({ songs, songById, analysis, energy, queue, setQueue, setIsPlaying, notify });
+
   const value = {
     songs,
     songById,
@@ -143,48 +138,7 @@ const PlayerState = ({ library, children }) => {
       setQueue(queue.shuffled ? Q.shuffle(Q.move(fresh, fresh.currentQid, 0)) : fresh);
       setIsPlaying(true);
     },
-    // Undo stays offered until the items change (playing on doesn't count; a drag/add/remove does).
-    canUndoArrange: arrangeUndo?.after === queue.items,
-    arrangeQueue: () => {
-      const upcoming = Q.upcomingItems(queue);
-      if (upcoming.length < 4) return notify("Add a few more songs to arrange");
-      const info = Object.fromEntries(upcoming.map(({ songId }) => {
-        const bpm = tempoOf(analysis[songId]);
-        return [songId, { energy: energy[songId], bpm: bpm && foldBpm(bpm) }];
-      }));
-      const arranged = Q.replaceUpcoming(queue, arrange(upcoming, info));
-      setQueue(arranged);
-      setArrangeUndo({ before: queue.items, after: arranged.items });
-      notify(`Arranged ${upcoming.length} songs: build-up, peak, cool-down`);
-    },
-    undoArrange: () => {
-      setQueue({ ...queue, items: arrangeUndo.before });
-      setArrangeUndo(null);
-    },
-    // Analysed songs with a tempo, placed on the vibe map (x = tempo, y = energy).
-    vibeSongs: songs.flatMap((song) => {
-      const bpm = tempoOf(analysis[song.id]);
-      if (!bpm || !Number.isFinite(energy[song.id])) return [];
-      const folded = foldBpm(bpm);
-      return [{ id: song.id, title: song.title, bpm: folded, energy: energy[song.id], ...toPoint({ bpm: folded, energy: energy[song.id] }) }];
-    }),
-    playVibe: (ids) => {
-      setQueue(Q.fromList(ids, 0));
-      setIsPlaying(true);
-      notify(`Playing your vibe: ${ids.length} songs`);
-    },
-    // Radio replaces the whole queue (like playing a list), so the seed starts playing at once.
-    startRadio: (seedId) => {
-      const info = Object.fromEntries(songs.map(({ id }) => {
-        const bpm = tempoOf(analysis[id]);
-        return [id, { energy: energy[id], bpm: bpm && foldBpm(bpm), camelot: keyOf(analysis[id])?.camelot ?? null }];
-      }));
-      const picks = radio(seedId, info);
-      if (picks.length < 2) return notify("Radio needs at least one other analysed song");
-      setQueue(Q.fromRadio(picks));
-      setIsPlaying(true);
-      notify(`Radio: ${picks.length - 1} songs like ${songById(seedId).title}`);
-    },
+    ...autoDj,
     toggleShuffle: () => setQueue(queue.shuffled ? Q.unshuffle(queue) : Q.shuffle(queue)),
     cycleRepeat: () => setRepeat({ off: "all", all: "one", one: "off" }[repeat]),
     playQid: (qid) => {
