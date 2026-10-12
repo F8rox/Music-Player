@@ -1,7 +1,7 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
 import { set, createStore } from "idb-keyval";
-import { addSong, deleteSong, getBlob, hasSong, listSongs, validSong } from "./db";
+import { addSong, deleteSong, getBlob, hasSong, listAnalysis, listSongs, putAnalysis, validAnalysis, validSong } from "./db";
 import { checkFile } from "./importFiles";
 
 const id = (n) => "u:" + String(n).repeat(64).slice(0, 64);
@@ -67,5 +67,39 @@ describe("checkFile", () => {
 
   it("rejects files over 100 MB", () => {
     expect(checkFile(file("a.mp3", "audio/mpeg", 101 * 1024 * 1024))).toBe("too-big");
+  });
+});
+
+describe("analysis records", () => {
+  const good = () => ({
+    v: 1, envelope: new Uint8Array([1, 2]), loudness: -12, onsetDensity: 2, introEnd: 1, outroStart: 180,
+    bpm: 120, bpmConfidence: 0.7, beatOffset: 0.2, bpmOverride: null,
+  });
+
+  it("accepts a valid result and strips extra fields", () => {
+    expect(validAnalysis({ ...good(), evil: "x" })).toEqual(good());
+  });
+
+  it.each([
+    ["old version", { v: 0 }],
+    ["bpm outside the folded range", { bpm: 200 }],
+    ["confidence above 1", { bpmConfidence: 2 }],
+    ["outro before intro", { introEnd: 50, outroStart: 10 }],
+    ["envelope not bytes", { envelope: [1, 2] }],
+    ["absurd override", { bpmOverride: 5000 }],
+  ])("rejects %s", (_, extra) => {
+    expect(validAnalysis({ ...good(), ...extra })).toBeNull();
+  });
+
+  it("allows a null tempo (no beat found)", () => {
+    expect(validAnalysis({ ...good(), bpm: null, beatOffset: null })).not.toBeNull();
+  });
+
+  it("round-trips through IndexedDB and skips invalid records", async () => {
+    await putAnalysis("1", good());
+    await putAnalysis("2", { ...good(), v: 99 });
+    const all = await listAnalysis();
+    expect(all["1"].bpm).toBe(120);
+    expect(all["2"]).toBeUndefined();
   });
 });

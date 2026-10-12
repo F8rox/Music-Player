@@ -11,6 +11,11 @@
   --danger: #f87171;
   --focus: #7dd3fc;
   --overlay: #000000b3;
+  --energy-1: #38bdf8;
+  --energy-2: #22d3ee;
+  --energy-3: #10b981;
+  --energy-4: #facc15;
+  --energy-5: #f97316;
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -126,7 +131,7 @@ h2 {
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: 2rem 1fr auto;
+  grid-template-columns: 2rem 1fr auto auto;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
@@ -716,4 +721,49 @@ h2 {
   padding: var(--space-2) var(--space-3);
   color: var(--text-muted);
   font-size: 0.875rem;
+}
+
+/* ---------- Analysis (energy + tempo) ---------- */
+.song-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.energy-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--text-muted);
+}
+
+.energy-1 { background: var(--energy-1); }
+.energy-2 { background: var(--energy-2); }
+.energy-3 { background: var(--energy-3); }
+.energy-4 { background: var(--energy-4); }
+.energy-5 { background: var(--energy-5); }
+
+.energy-dot.analysing {
+  background: none;
+  border: 2px solid var(--text-muted);
+  animation: analysing-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes analysing-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.song-bpm,
+.analysis-note {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tempo-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }

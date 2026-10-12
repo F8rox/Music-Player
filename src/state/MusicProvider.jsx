@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { engine } from "../audio/engine";
 import { songs as bundled } from "../data/songs";
 import * as Q from "../lib/queue";
+import { energyLevels } from "../lib/energy";
 import { load, save } from "../lib/storage";
 import { MusicContext } from "./useMusic";
+import { useAnalysis } from "./useAnalysis";
 import { useDurations } from "./useDurations";
 import { useLibrary } from "./useLibrary";
 import { usePlayback } from "./usePlayback";
@@ -28,6 +30,10 @@ const PlayerState = ({ library, children }) => {
   const [notice, setNotice] = useState(() =>
     library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
   const probed = useDurations(bundled);
+  const { analysis, setTempo } = useAnalysis(songs);
+  const energy = useMemo(() => energyLevels(Object.fromEntries(
+    songs.filter((song) => typeof analysis[song.id] === "object").map((song) => [song.id, analysis[song.id]]),
+  )), [songs, analysis]);
   const notify = (text) => setNotice({ text, id: Date.now() });
   const playlistState = usePlaylists(saved.playlists, notify);
   const { playlists } = playlistState;
@@ -89,6 +95,9 @@ const PlayerState = ({ library, children }) => {
     songById,
     ...playlistState,
     durationOf: (song) => probed[song.id] ?? song.durationSec,
+    analysisOf: (songId) => analysis[songId],
+    energyOf: (songId) => energy[songId],
+    setTempo,
     imports: library.imports,
     importing: library.busy,
     importFiles: library.add,

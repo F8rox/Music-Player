@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useMusic } from "../state/useMusic";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { TempoDialog } from "./TempoDialog";
 
 export const SongMenu = ({ song }) => {
-  const { playNext, addToQueue, removeFromLibrary, playlists, addToPlaylist } = useMusic();
+  const { playNext, addToQueue, removeFromLibrary, playlists, addToPlaylist, analysisOf } = useMusic();
   const [open, setOpen] = useState(false);
   const [picking, setPicking] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [fixingTempo, setFixingTempo] = useState(false);
+  const analysed = typeof analysisOf(song.id) === "object";
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -62,6 +65,11 @@ export const SongMenu = ({ song }) => {
               {playlist.name}
             </button>
           )))}
+          {analysed && (
+            <button type="button" role="menuitem" onClick={() => { setOpen(false); setFixingTempo(true); }}>
+              Fix tempo…
+            </button>
+          )}
           {song.imported && (
             <button type="button" role="menuitem" onClick={() => { setOpen(false); setConfirming(true); }}>
               Remove from library
@@ -69,6 +77,7 @@ export const SongMenu = ({ song }) => {
           )}
         </div>
       )}
+      {fixingTempo && <TempoDialog song={song} onClose={() => setFixingTempo(false)} />}
       {confirming && (
         <ConfirmDialog
           title="Remove from library?"

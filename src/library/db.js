@@ -1,5 +1,6 @@
 // The only module that touches IndexedDB. Records read back are untrusted (Invariant 5).
-import { createStore, delMany, get, getMany, keys, setMany } from "idb-keyval";
+import { createStore, delMany, get, getMany, keys, set, setMany } from "idb-keyval";
+import { ANALYSIS_VERSION } from "../audio/analysis/dsp";
 import { cleanText } from "../lib/tags";
 
 const store = createStore("music-player", "library");
@@ -54,3 +55,29 @@ export const getBlob = async (id) => {
 
 export const deleteSong = (id) =>
   delMany([`song:${id}`, `blob:${id}`, `cover:${id}`, `analysis:${id}`], store);
+
+const between = (value, min, max) => Number.isFinite(value) && value >= min && value <= max;
+const optional = (value, min, max) => (value === null ? true : between(value, min, max));
+
+// An outdated version or any bad field means "not analysed": the song is simply analysed again.
+export const validAnalysis = (raw) => {
+  if (!isObject(raw) || raw.v !== ANALYSIS_VERSION || !(raw.envelope instanceof Uint8Array)) return null;
+  const ok = between(raw.loudness, -200, 10) && between(raw.onsetDensity, 0, 1000)
+    && between(raw.introEnd, 0, 1e5) && between(raw.outroStart, raw.introEnd, 1e5)
+    && optional(raw.bpm, 80, 160) && between(raw.bpmConfidence, 0, 1)
+    && optional(raw.beatOffset, 0, 10) && optional(raw.bpmOverride, 30, 300);
+  if (!ok) return null;
+  const { v, envelope, loudness, onsetDensity, introEnd, outroStart, bpm, bpmConfidence, beatOffset, bpmOverride } = raw;
+  return { v, envelope, loudness, onsetDensity, introEnd, outroStart, bpm, bpmConfidence, beatOffset, bpmOverride };
+};
+
+// { [songId]: AnalysisResult } for every valid cached analysis.
+export const listAnalysis = async () => {
+  const analysisKeys = (await keys(store)).filter((key) => typeof key === "string" && key.startsWith("analysis:"));
+  const records = await getMany(analysisKeys, store);
+  return Object.fromEntries(analysisKeys
+    .map((key, i) => [key.slice("analysis:".length), validAnalysis(records[i])])
+    .filter(([, result]) => result));
+};
+
+export const putAnalysis = (id, result) => set(`analysis:${id}`, result, store);
