@@ -13,6 +13,9 @@ export const Navbar = () =>{
             <NavLink to = '/' className={navClass}>
                 All Songs
             </NavLink>
+            <NavLink to = '/vibe' className={navClass}>
+                Vibe
+            </NavLink>
             <NavLink to = '/playlists' className={navClass}>
                 Playlists
             </NavLink>

@@ -7,6 +7,7 @@ import { arrange } from "../lib/arrange";
 import { energyLevels } from "../lib/energy";
 import { keyOf } from "../lib/key";
 import { radio } from "../lib/radio";
+import { toPoint } from "../lib/vibe";
 import { load, save } from "../lib/storage";
 import { tempoOf } from "../lib/tempo";
 import { MusicContext } from "./useMusic";
@@ -159,6 +160,18 @@ const PlayerState = ({ library, children }) => {
     undoArrange: () => {
       setQueue({ ...queue, items: arrangeUndo.before });
       setArrangeUndo(null);
+    },
+    // Analysed songs with a tempo, placed on the vibe map (x = tempo, y = energy).
+    vibeSongs: songs.flatMap((song) => {
+      const bpm = tempoOf(analysis[song.id]);
+      if (!bpm || !Number.isFinite(energy[song.id])) return [];
+      const folded = foldBpm(bpm);
+      return [{ id: song.id, title: song.title, bpm: folded, energy: energy[song.id], ...toPoint({ bpm: folded, energy: energy[song.id] }) }];
+    }),
+    playVibe: (ids) => {
+      setQueue(Q.fromList(ids, 0));
+      setIsPlaying(true);
+      notify(`Playing your vibe: ${ids.length} songs`);
     },
     // Radio replaces the whole queue (like playing a list), so the seed starts playing at once.
     startRadio: (seedId) => {

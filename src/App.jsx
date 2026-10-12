@@ -10,6 +10,7 @@ import { QueuePanel } from "./components/QueuePanel";
 import { AllSongs } from "./pages/AllSongs";
 import { PlaylistDetail } from "./pages/PlaylistDetail";
 import { Playlists } from "./pages/Playlists";
+import { VibeMap } from "./pages/VibeMap";
 import { MusicProvider } from "./state/MusicProvider";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <main className="content">
             <Routes>
               <Route path="/" element={<AllSongs />} />
+              <Route path="/vibe" element={<VibeMap />} />
               <Route path="/playlists" element={<Playlists />} />
               <Route path="/playlists/:id" element={<PlaylistDetail />} />
             </Routes>
