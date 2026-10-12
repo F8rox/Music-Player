@@ -31,11 +31,23 @@ The app is a Vite + React tutorial-stage player. Checked on 2026-10-12:
 | 14 Beat-matching (experimental) | Not started | |
 | 15 Responsive, a11y, release | Not started | |
 
+## Audit (Helper B, 2026-10-12, after Prompt 1C)
+
+| Severity | File | Rule broken | Outcome |
+|----------|------|-------------|---------|
+| Medium | src/index.css `--danger` | design.md Contrast (AA 4.5:1): white on the danger button 3.33, red error text on the import panel 3.81 | Fixed `fac4272`: `#f87171` with `--bg` text → 6.93 / 5.19 |
+| Medium | src/components/DropZone.jsx | code-standards React (effects need stable callbacks): listeners re-bound about 4×/s while playing and the drag counter reset, so the overlay could vanish mid-drag | Fixed `c336f87`; verified the overlay persists 2.5 s during playback |
+| Medium | src/state/MusicProvider.jsx | Unit 11 / performance: `currentTime` sits in the one context, so every consumer (every song row) re-renders about 4×/s during playback. Negligible at 12 songs, costly at hundreds | Deferred to Unit 09 (the engine owns time): split playback time into its own context |
+| Low | architecture Invariant 1 | Wording: the detached `new Audio()` probes in importFiles and useDurations aren't playback elements | Invariant reworded to cover only playback elements |
+| Low | open checks | Still unverified: reduced-motion emulation (02), touch drag (05), Firefox and a full browser restart (07) | Owner manual checks; listed in the unit rows |
+
+Clean: lint, 92 tests, build, `npm audit` 0, no colours outside `:root`, no unsafe HTML or eval, no lists keyed by index, no `console.log`, every file ≤ 151 lines, only `storage.js` and `db.js` touch storage, no `react-router-dom`.
+
 ## In Progress
 None.
 
 ## Next Up
-Prompt 1C is done. Next: Helper B (audit), then Prompt 2A (Units 09 Audio engine, 10 Track analysis, 11 Visualiser).
+Prompt 2A: Unit 09 Audio engine.
 
 Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by another local project.
 

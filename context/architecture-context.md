@@ -92,7 +92,7 @@ deckB: <audio> -> MediaElementSource -> gainB ┴-> masterGain -> analyser -> de
 
 ## Invariants
 
-1. Before Unit 09 there is exactly one `<audio>` element. From Unit 09 on, exactly two, both owned by `src/audio/engine.js`; components never create audio elements or nodes.
+1. Before Unit 09 there is exactly one playback `<audio>` element. From Unit 09 on, exactly two playback elements, both owned by `src/audio/engine.js`; components never create playback elements or audio nodes. Detached metadata probes (`new Audio()` in the import check and duration probing) are allowed and must release their src.
 2. The title, artist, highlighted row and the audible "current" deck always refer to `currentQid`. During a fade the incoming song is already current.
 3. Reordering, adding or removing non-current queue items never restarts or changes the playing audio, and never cancels an in-progress fade unless it touches the incoming item.
 4. Editing a playlist never changes the queue.
