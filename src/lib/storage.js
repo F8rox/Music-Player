@@ -34,6 +34,7 @@ const parseSettings = (raw) => ({
   crossfade: isObject(raw) && typeof raw.crossfade === "boolean" ? raw.crossfade : true,
   fadeSeconds: isObject(raw) && Number.isInteger(raw.fadeSeconds) && raw.fadeSeconds >= 2 && raw.fadeSeconds <= 12
     ? raw.fadeSeconds : 6,
+  beatMatch: isObject(raw) && raw.beatMatch === true, // experimental: off unless explicitly on
 });
 
 const inRange = (value, min, max, fallback) =>

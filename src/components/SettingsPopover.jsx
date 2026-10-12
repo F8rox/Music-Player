@@ -46,6 +46,15 @@ export const SettingsPopover = () => {
             aria-valuetext={`${settings.fadeSeconds} seconds`}
             onChange={(e) => update({ fadeSeconds: Number(e.target.value) })}
           />
+          <label className="setting-row">
+            <input
+              type="checkbox"
+              checked={settings.beatMatch}
+              disabled={!settings.crossfade}
+              onChange={(e) => update({ beatMatch: e.target.checked })}
+            />
+            Beat-match (experimental)
+          </label>
         </div>
       )}
     </div>

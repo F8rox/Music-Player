@@ -41,7 +41,7 @@
 - Commit messages are conventional (`feat(queue): ...`, `fix(player): ...`, `chore: ...`).
 
 ## Size Limits
-- Files of 200 lines or fewer (`src/index.css` is exempt). Functions of 50 lines or fewer. Split a file by component or concern when it grows past this.
+- Files of 200 lines or fewer (`src/index.css` is exempt; `src/audio/engine.js` is a recorded exception at about 213 lines, because splitting it would spread its module-private deck/transition state across files). Functions of 50 lines or fewer. Split a file by component or concern when it grows past this.
 
 ## File Organization
 

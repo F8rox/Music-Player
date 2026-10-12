@@ -1,4 +1,5 @@
 import { fadeCurves } from "../lib/transition";
+import { decodeSegment } from "./segment";
 
 // The app's only playback path (Invariant 1): two hidden <audio> decks routed through one
 // AudioContext. A module singleton because React StrictMode mounts twice and
@@ -11,6 +12,7 @@ let volume = 1;
 let current = 0;
 let transition = null; // { from, ticker } while two decks are blending
 let adoptedKey = null; // queue item the incoming deck already plays, so load() must not restart it
+let beatSegment = null; // { url, offset, rate, buffer }: decoded start of the next song for beat-matching
 
 const deckEl = () => {
   decks ??= [0, 1].map(() => {
@@ -36,20 +38,30 @@ const unload = (el) => {
   el.load();
 };
 
-const setGain = (deck, value) => {
-  const gain = deck.gain?.gain;
-  if (!gain) return;
-  gain.cancelScheduledValues(0);
-  gain.setValueAtTime(value, graph.ctx.currentTime);
+const setGain = (deck, value) => deck.gain && ramp(deck.gain.gain, value, value, 0);
+
+// Cancel anything scheduled, then move from→to over `seconds` (0 = jump now).
+const ramp = (param, from, to, seconds) => {
+  const now = graph.ctx.currentTime;
+  param.cancelScheduledValues(0);
+  param.setValueAtTime(from, now);
+  if (seconds) param.linearRampToValueAtTime(to, now + seconds);
 };
 
 // End (or cancel) a fade: the outgoing deck stops, the current one is left at full volume.
 const finishTransition = () => {
   if (!transition) return;
-  const { from, ticker } = transition;
+  const { from, ticker, beat } = transition;
   transition = null;
   ticker.onended = null;
   ticker.stop();
+  if (beat) {
+    // Cancelled mid beat-match: the deck takes over where the segment had got to.
+    beat.source.stop();
+    const el = decks[current].el;
+    el.currentTime = beat.offset + beat.rate * (graph.ctx.currentTime - beat.when);
+    if (!decks[from].el.paused) el.play().catch(() => {});
+  }
   unload(decks[from].el);
   setGain(decks[from], 1);
   setGain(decks[current], 1);
@@ -91,6 +103,8 @@ export const engine = {
   play: async () => {
     graph ??= buildGraph();
     await graph.ctx.resume();
+    // Mid beat-match the deck waits for the handoff; starting it now would put it seconds ahead.
+    if (transition?.beat) return undefined;
     return deckEl().play();
   },
   pause: () => {
@@ -108,6 +122,58 @@ export const engine = {
     const idle = decks[1 - current].el;
     if (idle.getAttribute("src") !== url) idle.src = url;
     idle.currentTime = offset;
+  },
+  // Beat-matching (experimental): decode the next song once, keep only the stretch the blend uses.
+  prepareBeat: async (url, { offset, rate, fadeSeconds }) => {
+    if (!graph || (beatSegment?.url === url && beatSegment.offset === offset)) return;
+    beatSegment = null;
+    const buffer = await decodeSegment(graph.ctx, url, offset, fadeSeconds * rate + 2);
+    if (buffer) beatSegment = { url, offset, rate, buffer };
+  },
+  // Sample-accurate start on the outgoing song's beat (media elements jitter by tens of ms).
+  // Returns false when no matching segment is ready; the caller then uses crossfadeTo.
+  beatMatchTo: (url, { at, offset, rate, fadeSeconds, key }) => {
+    if (!graph || beatSegment?.url !== url || beatSegment.offset !== offset || beatSegment.rate !== rate) return false;
+    finishTransition();
+    const ctx = graph.ctx;
+    const from = current;
+    const to = 1 - current;
+    const outgoing = decks[from].el;
+    const when = ctx.currentTime + Math.max(0, at - outgoing.currentTime);
+    const source = ctx.createBufferSource();
+    const segmentGain = ctx.createGain();
+    source.buffer = beatSegment.buffer;
+    source.playbackRate.value = rate;
+    source.connect(segmentGain).connect(graph.master);
+    const { out, into } = fadeCurves();
+    decks[from].gain.gain.cancelScheduledValues(0);
+    decks[from].gain.gain.setValueCurveAtTime(out, when, fadeSeconds);
+    segmentGain.gain.setValueAtTime(0, ctx.currentTime);
+    segmentGain.gain.setValueCurveAtTime(into, when, fadeSeconds);
+    source.start(when);
+    // The deck waits silently at the position the segment will have reached by the handoff.
+    const incoming = decks[to].el;
+    if (incoming.getAttribute("src") !== url) incoming.src = url;
+    incoming.currentTime = offset + rate * fadeSeconds;
+    setGain(decks[to], 0);
+    const ticker = ctx.createConstantSource();
+    ticker.onended = () => {
+      // Handoff: the deck starts and an 80 ms micro-fade covers its start-up jitter.
+      incoming.play().catch(() => {});
+      ramp(segmentGain.gain, 1, 0, 0.08);
+      ramp(decks[to].gain.gain, 0, 1, 0.08);
+      source.stop(ctx.currentTime + 0.1);
+      transition = null;
+      unload(outgoing);
+      setGain(decks[from], 1);
+      beatSegment = null;
+    };
+    ticker.start(ctx.currentTime);
+    ticker.stop(when + fadeSeconds);
+    transition = { from, ticker, beat: { source, when, offset, rate } };
+    current = to;
+    adoptedKey = key;
+    return true;
   },
   transitioning: () => Boolean(transition),
   cancelTransition: () => finishTransition(),

@@ -72,7 +72,7 @@ const PlayerState = ({ library, children }) => {
   });
 
   const { settings, setSettings } = useCrossfade({
-    saved: saved.settings, queue, repeat, isPlaying, advance, songById, durationOf,
+    saved: saved.settings, queue, repeat, isPlaying, advance, songById, durationOf, notify,
     analysisOf: (songId) => analysis[songId],
   });
 

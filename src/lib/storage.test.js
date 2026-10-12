@@ -15,9 +15,9 @@ const valid = {
   position: 42,
   repeat: "one",
   playlists: [{ id: "p1", name: "Gym", songIds: ["1", "3"], createdAt: 7 }],
-  settings: { crossfade: false, fadeSeconds: 10 },
+  settings: { crossfade: false, fadeSeconds: 10, beatMatch: true },
 };
-const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off", playlists: [], settings: { crossfade: true, fadeSeconds: 6 } };
+const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off", playlists: [], settings: { crossfade: true, fadeSeconds: 6, beatMatch: false } };
 
 describe("parse", () => {
   it("round-trips valid state", () => {
@@ -98,6 +98,6 @@ describe("parse", () => {
     [{ crossfade: true, fadeSeconds: 6.5 }],
     ["junk"],
   ])("falls back to default settings for %j", (settings) => {
-    expect(parse(JSON.stringify({ settings }), songIds).settings).toEqual({ crossfade: true, fadeSeconds: 6 });
+    expect(parse(JSON.stringify({ settings }), songIds).settings).toEqual({ crossfade: true, fadeSeconds: 6, beatMatch: false });
   });
 });
