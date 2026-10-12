@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { engine } from "../audio/engine";
 import { songs as bundled } from "../data/songs";
 import * as Q from "../lib/queue";
 import { load, save } from "../lib/storage";
 import { MusicContext } from "./useMusic";
 import { useDurations } from "./useDurations";
 import { useLibrary } from "./useLibrary";
+import { usePlayback } from "./usePlayback";
 import { usePlaylists } from "./usePlaylists";
+import { useSongUrl } from "./useSongUrl";
 
 // The library must load before saved state is parsed, so stored ids can be checked against it.
 export const MusicProvider = ({ children }) => {
@@ -19,8 +22,6 @@ const PlayerState = ({ library, children }) => {
   const songById = (id) => songs.find((song) => song.id === id) ?? null;
   const [saved] = useState(() => load(new Set(songs.map((song) => song.id))));
   const [queue, setQueue] = useState(saved.queue);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(saved.volume);
   const [repeat, setRepeat] = useState(saved.repeat);
@@ -32,23 +33,56 @@ const PlayerState = ({ library, children }) => {
   const { playlists } = playlistState;
   const saveFailed = useRef(false);
 
-  const savedSecond = Math.floor(currentTime);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (save({ queue, volume, repeat, playlists, position: savedSecond }) || saveFailed.current) return;
-      saveFailed.current = true;
-      setNotice({ text: "Couldn't save. Changes will be lost on refresh.", id: Date.now() });
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [queue, volume, repeat, playlists, savedSecond]);
-
   const item = Q.current(queue);
+  const currentTrack = item && songById(item.songId);
 
   const advance = ({ queue: nextQueue, stopped }) => {
     setQueue(nextQueue);
     if (stopped) setIsPlaying(false);
   };
+
+  const positionToSave = usePlayback({
+    url: useSongUrl(currentTrack),
+    currentQid: queue.currentQid,
+    isPlaying,
+    setIsPlaying,
+    volume,
+    restorePosition: saved.position,
+    // Repeat "one" keeps the same queue item, so nothing reloads: restart the deck here.
+    onEnded: () => {
+      const result = Q.afterEnded(queue, repeat);
+      advance(result);
+      if (result.queue.currentQid !== queue.currentQid || result.stopped) return;
+      engine.seek(0);
+      engine.play().catch(() => setIsPlaying(false));
+    },
+  });
+
+  const persist = useRef(null);
+  useEffect(() => {
+    persist.current = () => {
+      if (save({ queue, volume, repeat, playlists, position: positionToSave() }) || saveFailed.current) return;
+      saveFailed.current = true;
+      setNotice({ text: "Couldn't save. Changes will be lost on refresh.", id: Date.now() });
+    };
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => persist.current(), 300);
+    return () => clearTimeout(timer);
+  }, [queue, volume, repeat, playlists]);
+
+  // Position changes constantly; save it every 5 s while playing and when the page goes away.
+  useEffect(() => {
+    const saveNow = () => persist.current();
+    window.addEventListener("pagehide", saveNow);
+    const timer = isPlaying ? setInterval(saveNow, 5000) : null;
+    return () => {
+      window.removeEventListener("pagehide", saveNow);
+      clearInterval(timer);
+      saveNow();
+    };
+  }, [isPlaying]);
 
   const value = {
     songs,
@@ -69,12 +103,7 @@ const PlayerState = ({ library, children }) => {
     },
     queue,
     currentQid: queue.currentQid,
-    currentTrack: item && songById(item.songId),
-    restorePosition: saved.position,
-    currentTime,
-    setCurrentTime,
-    duration,
-    setDuration,
+    currentTrack,
     isPlaying,
     setIsPlaying,
     volume,
@@ -108,18 +137,13 @@ const PlayerState = ({ library, children }) => {
     moveInQueue: (qid, toIndex) => setQueue((q) => Q.move(q, qid, toIndex)),
     // The Next button skips even with repeat "one"; only repeat "off" stops at the end.
     nextTrack: () => advance(Q.next(queue, repeat === "off" ? "off" : "all")),
-    // Returns true when the same item should replay (repeat "one").
-    trackEnded: () => {
-      const result = Q.afterEnded(queue, repeat);
-      advance(result);
-      return result.queue.currentQid === queue.currentQid && !result.stopped;
-    },
-    // Returns false at the first item so the player restarts the track instead.
+    // After 3 s, or at the first item, Previous restarts the current track.
     prevTrack: () => {
       const previous = Q.prev(queue);
+      if (engine.currentTime() > 3 || previous === queue) return engine.seek(0);
       setQueue(previous);
-      return previous !== queue;
     },
+    seek: engine.seek,
   };
 
   return <MusicContext.Provider value={value}>{children}</MusicContext.Provider>;

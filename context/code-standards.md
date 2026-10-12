@@ -64,6 +64,7 @@ src/
       dsp.js  dsp.test.js     pure DSP: rms, intro/outro, onset, bpm
   state/
     MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js  useSongUrl.js  usePlaylists.js
+    usePlayback.js  usePlaybackTime.js   (engine ↔ React; time is PlayerBar-only)
   components/
     Navbar  PlayerBar  QueuePanel  SortableList  SongRow  SongMenu  Notice
     ImportButton  ImportPanel  DropZone  Visualiser  SettingsPopover  TempoDialog  ConfirmDialog
