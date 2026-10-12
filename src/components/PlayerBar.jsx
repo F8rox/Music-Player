@@ -1,6 +1,7 @@
 import { formatTime } from "../lib/format";
 import { useMusic } from "../state/useMusic";
 import { usePlaybackTime } from "../state/usePlaybackTime";
+import { Visualiser } from "./Visualiser";
 
 // A view: playback itself lives in the engine, driven by the provider.
 export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
@@ -16,6 +17,7 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
   return (
     <footer className="player-bar">
       <div className="track-info">
+        <Visualiser />
         <p className="track-title">{currentTrack?.title ?? "Nothing playing"}</p>
         <p className="track-artist">{currentTrack?.artist ?? "Pick a song to start"}</p>
       </div>
