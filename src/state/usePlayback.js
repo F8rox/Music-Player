@@ -12,7 +12,7 @@ export const usePlayback = ({ url, currentQid, isPlaying, setIsPlaying, volume, 
 
   // currentQid is a dependency so a duplicate song (same url, new queue item) reloads from 0.
   useEffect(() => {
-    engine.load(url);
+    engine.load(url, currentQid);
   }, [url, currentQid]);
 
   useEffect(() => {

@@ -67,9 +67,10 @@ src/
     MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js  useSongUrl.js  usePlaylists.js
     usePlayback.js  usePlaybackTime.js   (engine ↔ React; time is PlayerBar-only)
     useAnalysis.js   (cached results + one-at-a-time analysis queue)
+    useCrossfade.js  (plans and triggers the fade; owns crossfade settings)
   components/
     Navbar  PlayerBar  QueuePanel  SortableList  SongRow  SongMenu  Notice
-    ImportButton  ImportPanel  DropZone  Visualiser  SettingsPopover  TempoDialog  ConfirmDialog  PlaylistHeader
+    ImportButton  ImportPanel  DropZone  Visualiser  TempoDialog  ConfirmDialog  PlaylistHeader  SettingsPopover
   pages/
     AllSongs.jsx  Playlists.jsx  PlaylistDetail.jsx  About.jsx
 ```

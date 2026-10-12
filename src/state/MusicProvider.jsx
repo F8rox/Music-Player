@@ -9,6 +9,7 @@ import { load, save } from "../lib/storage";
 import { tempoOf } from "../lib/tempo";
 import { MusicContext } from "./useMusic";
 import { useAnalysis } from "./useAnalysis";
+import { useCrossfade } from "./useCrossfade";
 import { useDurations } from "./useDurations";
 import { useLibrary } from "./useLibrary";
 import { usePlayback } from "./usePlayback";
@@ -35,6 +36,7 @@ const PlayerState = ({ library, children }) => {
   const [notice, setNotice] = useState(() =>
     library.dropped ? { text: "Some saved songs were damaged and skipped.", id: 0 } : null);
   const probed = useDurations(bundled);
+  const durationOf = (song) => probed[song.id] ?? song.durationSec;
   const { analysis, setTempo } = useAnalysis(songs);
   const energy = useMemo(() => energyLevels(Object.fromEntries(
     songs.filter((song) => typeof analysis[song.id] === "object").map((song) => [song.id, analysis[song.id]]),
@@ -69,10 +71,15 @@ const PlayerState = ({ library, children }) => {
     },
   });
 
+  const { settings, setSettings } = useCrossfade({
+    saved: saved.settings, queue, repeat, isPlaying, advance, songById, durationOf,
+    analysisOf: (songId) => analysis[songId],
+  });
+
   const persist = useRef(null);
   useEffect(() => {
     persist.current = () => {
-      if (save({ queue, volume, repeat, playlists, position: positionToSave() }) || saveFailed.current) return;
+      if (save({ queue, volume, repeat, playlists, settings, position: positionToSave() }) || saveFailed.current) return;
       saveFailed.current = true;
       setNotice({ text: "Couldn't save. Changes will be lost on refresh.", id: Date.now() });
     };
@@ -81,7 +88,7 @@ const PlayerState = ({ library, children }) => {
   useEffect(() => {
     const timer = setTimeout(() => persist.current(), 300);
     return () => clearTimeout(timer);
-  }, [queue, volume, repeat, playlists]);
+  }, [queue, volume, repeat, playlists, settings]);
 
   // Position changes constantly; save it every 5 s while playing and when the page goes away.
   useEffect(() => {
@@ -99,7 +106,9 @@ const PlayerState = ({ library, children }) => {
     songs,
     songById,
     ...playlistState,
-    durationOf: (song) => probed[song.id] ?? song.durationSec,
+    durationOf,
+    settings,
+    setSettings,
     analysisOf: (songId) => analysis[songId],
     energyOf: (songId) => energy[songId],
     setTempo,

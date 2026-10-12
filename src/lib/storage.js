@@ -30,6 +30,12 @@ const parsePlaylists = (raw, songIds) => {
     }));
 };
 
+const parseSettings = (raw) => ({
+  crossfade: isObject(raw) && typeof raw.crossfade === "boolean" ? raw.crossfade : true,
+  fadeSeconds: isObject(raw) && Number.isInteger(raw.fadeSeconds) && raw.fadeSeconds >= 2 && raw.fadeSeconds <= 12
+    ? raw.fadeSeconds : 6,
+});
+
 const inRange = (value, min, max, fallback) =>
   Number.isFinite(value) && value >= min && value <= max ? value : fallback;
 
@@ -48,6 +54,7 @@ export const parse = (text, songIds) => {
     position: inRange(data.position, 0, Number.MAX_SAFE_INTEGER, 0),
     repeat: REPEAT_MODES.includes(data.repeat) ? data.repeat : "off",
     playlists: parsePlaylists(data.playlists, songIds),
+    settings: parseSettings(data.settings),
   };
 };
 

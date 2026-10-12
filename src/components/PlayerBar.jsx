@@ -1,6 +1,7 @@
 import { formatTime } from "../lib/format";
 import { useMusic } from "../state/useMusic";
 import { usePlaybackTime } from "../state/usePlaybackTime";
+import { SettingsPopover } from "./SettingsPopover";
 import { Visualiser } from "./Visualiser";
 
 // A view: playback itself lives in the engine, driven by the provider.
@@ -70,6 +71,7 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
       </div>
 
       <div className="player-right">
+        <SettingsPopover />
         <input
           type="range"
           min="0"

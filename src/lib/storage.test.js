@@ -15,8 +15,9 @@ const valid = {
   position: 42,
   repeat: "one",
   playlists: [{ id: "p1", name: "Gym", songIds: ["1", "3"], createdAt: 7 }],
+  settings: { crossfade: false, fadeSeconds: 10 },
 };
-const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off", playlists: [] };
+const defaults = { queue: { items: [], currentQid: null, shuffled: false }, volume: 0.5, position: 0, repeat: "off", playlists: [], settings: { crossfade: true, fadeSeconds: 6 } };
 
 describe("parse", () => {
   it("round-trips valid state", () => {
@@ -33,7 +34,7 @@ describe("parse", () => {
 
   it("uses defaults per field for wrong types", () => {
     const result = parse(JSON.stringify({ ...valid, queue: "junk", volume: "loud" }), songIds);
-    expect(result).toEqual({ ...defaults, position: 42, repeat: "one", playlists: valid.playlists });
+    expect(result).toEqual({ ...defaults, position: 42, repeat: "one", playlists: valid.playlists, settings: valid.settings });
   });
 
   it("drops unknown song ids and falls back to the first item", () => {
@@ -89,5 +90,14 @@ describe("parse", () => {
 
   it("uses an empty list when playlists isn't an array", () => {
     expect(parse('{"playlists":"junk"}', songIds).playlists).toEqual([]);
+  });
+
+  it.each([
+    [{ crossfade: "yes", fadeSeconds: 6 }],
+    [{ crossfade: true, fadeSeconds: 99 }],
+    [{ crossfade: true, fadeSeconds: 6.5 }],
+    ["junk"],
+  ])("falls back to default settings for %j", (settings) => {
+    expect(parse(JSON.stringify({ settings }), songIds).settings).toEqual({ crossfade: true, fadeSeconds: 6 });
   });
 });
