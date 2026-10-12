@@ -30,7 +30,7 @@ const AnalysisInfo = ({ songId }) => {
 };
 
 // `actions` sits beside the play button: buttons can't be nested inside buttons.
-export const SongRow = ({ song, index, duration, active, onPlay, actions }) => (
+export const SongRow = ({ song, index, duration, active, onPlay, actions, note }) => (
   <div className={`song-row${active ? " active" : ""}`}>
     <button type="button" className="song-play" onClick={onPlay}>
       <span className="song-index" aria-hidden="true">{active ? "♪" : index + 1}</span>
@@ -40,6 +40,7 @@ export const SongRow = ({ song, index, duration, active, onPlay, actions }) => (
           {song.imported && <span className="yours-tag">Yours</span>}
           {song.artist}
         </span>
+        {note && <span className="song-note">{note}</span>}
       </span>
       <span className="song-meta">
         <AnalysisInfo songId={song.id} />

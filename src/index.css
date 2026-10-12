@@ -256,7 +256,8 @@ h2 {
 }
 
 .song-title,
-.song-artist {
+.song-artist,
+.song-note {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -269,6 +270,12 @@ h2 {
 .song-artist {
   color: var(--text-muted);
   font-size: 0.75rem;
+}
+
+/* Why radio picked this song. */
+.song-note {
+  color: var(--accent-2);
+  font-size: 0.7rem;
 }
 
 /* ---------- Player bar ---------- */

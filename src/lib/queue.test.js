@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  afterEnded, append, current, emptyQueue, fromList, insertNext, move, next, prev, remove, removeSong, replaceUpcoming,
+  afterEnded, append, current, emptyQueue, fromList, fromRadio, insertNext, move, next, prev, remove, removeSong, replaceUpcoming,
   shuffle, unshuffle, upcomingItems,
 } from "./queue";
 
@@ -10,6 +10,27 @@ const ids = () => {
 };
 const songsOf = (queue) => queue.items.map((item) => item.songId);
 const build = (start = 0) => fromList(["a", "b", "c"], start, ids());
+
+describe("fromRadio", () => {
+  it("makes the picks the whole queue, seed current and first, each with its reason", () => {
+    const queue = fromRadio([{ songId: "a", reason: "Radio start" }, { songId: "b", reason: "Same key" }], ids());
+    expect(songsOf(queue)).toEqual(["a", "b"]);
+    expect(current(queue).songId).toBe("a");
+    expect(queue.items.map((item) => item.reason)).toEqual(["Radio start", "Same key"]);
+    expect(queue.items.map((item) => item.order)).toEqual([0, 1]);
+    expect(queue.shuffled).toBe(false);
+  });
+
+  it("keeps the reason through a shuffle and an unshuffle", () => {
+    const queue = fromRadio([{ songId: "a", reason: "r0" }, { songId: "b", reason: "r1" }, { songId: "c", reason: "r2" }], ids());
+    const back = unshuffle(shuffle(queue, () => 0.1));
+    expect(back.items.map((item) => item.reason)).toEqual(["r0", "r1", "r2"]);
+  });
+
+  it("gives an empty queue for no picks", () => {
+    expect(fromRadio([])).toEqual({ items: [], currentQid: null, shuffled: false });
+  });
+});
 
 describe("fromList", () => {
   it("keeps list order and starts at the clicked song", () => {

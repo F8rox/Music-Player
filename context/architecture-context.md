@@ -35,7 +35,7 @@ src/components, src/pages   render state, call actions; no rules, no audio nodes
 ```js
 // localStorage (small, validated on load)
 {
-  queue: { items: [{ qid, songId, order }], currentQid, shuffled },
+  queue: { items: [{ qid, songId, order, reason? }], currentQid, shuffled }, // reason: why radio picked it (string, cleaned, max 200)
   repeat: "off" | "all" | "one",
   volume: number,              // 0..1
   position: number,            // seconds, rounded

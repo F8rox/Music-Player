@@ -1,4 +1,4 @@
-// Pure queue rules (YT Music model). Items: { qid, songId, order }.
+// Pure queue rules (YT Music model). Items: { qid, songId, order, reason? }; `reason` says why radio picked it.
 // While unshuffled, `order` mirrors position. While shuffled, existing orders are frozen
 // (new items get max + 1) so unshuffle can restore the original sequence.
 
@@ -17,6 +17,12 @@ const currentIndex = (queue) => queue.items.findIndex((item) => item.qid === que
 export const fromList = (songIds, startIndex, makeId = newQid) => {
   const items = renumber(songIds.map((songId) => ({ qid: makeId(), songId })));
   return { items, currentQid: items[startIndex]?.qid ?? null, shuffled: false };
+};
+
+// Radio: the picks become the whole queue, the seed (first pick) is current and unshuffled.
+export const fromRadio = (picks, makeId = newQid) => {
+  const items = renumber(picks.map(({ songId, reason }) => ({ qid: makeId(), songId, reason })));
+  return { items, currentQid: items[0]?.qid ?? null, shuffled: false };
 };
 
 export const current = (queue) => queue.items[currentIndex(queue)] ?? null;

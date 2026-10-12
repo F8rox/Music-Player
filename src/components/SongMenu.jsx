@@ -4,7 +4,7 @@ import { ConfirmDialog } from "./ConfirmDialog";
 import { TempoDialog } from "./TempoDialog";
 
 export const SongMenu = ({ song }) => {
-  const { playNext, addToQueue, removeFromLibrary, playlists, addToPlaylist, analysisOf } = useMusic();
+  const { playNext, addToQueue, startRadio, removeFromLibrary, playlists, addToPlaylist, analysisOf } = useMusic();
   const [open, setOpen] = useState(false);
   const [picking, setPicking] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -65,6 +65,7 @@ export const SongMenu = ({ song }) => {
               {playlist.name}
             </button>
           )))}
+          {analysed && <button type="button" role="menuitem" onClick={choose(startRadio)}>Start radio</button>}
           {analysed && (
             <button type="button" role="menuitem" onClick={() => { setOpen(false); setFixingTempo(true); }}>
               Fix tempo…

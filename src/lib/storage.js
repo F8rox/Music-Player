@@ -1,5 +1,6 @@
 // The only module that touches localStorage. Everything read back is untrusted.
 import { validateName } from "./playlists";
+import { cleanText } from "./tags";
 const KEY = "musicPlayer:v1";
 const REPEAT_MODES = ["off", "all", "one"];
 
@@ -11,7 +12,7 @@ const parseQueue = (raw, songIds) => {
   const items = raw.items
     .filter((item) => isObject(item) && typeof item.qid === "string" && songIds.has(item.songId)
       && Number.isFinite(item.order) && !seen.has(item.qid) && seen.add(item.qid))
-    .map(({ qid, songId, order }) => ({ qid, songId, order }));
+    .map(({ qid, songId, order, reason }) => ({ qid, songId, order, ...(cleanText(reason) && { reason: cleanText(reason) }) }));
   const currentQid = seen.has(raw.currentQid) ? raw.currentQid : (items[0]?.qid ?? null);
   return { items, currentQid, shuffled: raw.shuffled === true };
 };

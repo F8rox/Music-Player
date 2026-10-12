@@ -67,6 +67,15 @@ describe("parse", () => {
     expect(parse(JSON.stringify({ queue }), songIds).queue.items[0]).toEqual(valid.queue.items[0]);
   });
 
+  it("keeps a radio reason, cleaned, and drops one that is not a string", () => {
+    const item = (reason) => ({ ...valid.queue.items[0], reason });
+    const read = (reason) => parse(JSON.stringify({ queue: { items: [item(reason)], currentQid: "a" } }), songIds).queue.items[0];
+    expect(read("Tempo within 3%")).toEqual({ ...valid.queue.items[0], reason: "Tempo within 3%" });
+    expect(read(" Same key ")).toMatchObject({ reason: "Same key" });
+    expect(read("x".repeat(500)).reason).toHaveLength(200);
+    for (const bad of [42, { evil: 1 }, ["a"], null, "  "]) expect(read(bad)).toEqual(valid.queue.items[0]);
+  });
+
   it("falls back for an unknown repeat mode and non-boolean shuffled", () => {
     const text = JSON.stringify({ repeat: "sideways", queue: { ...valid.queue, shuffled: "yes" } });
     const result = parse(text, songIds);

@@ -53,6 +53,7 @@ export const QueuePanel = ({ onClose }) => {
                   index={index}
                   duration={durationOf(song)}
                   active={active}
+                  note={item.reason}
                   onPlay={() => playQid(item.qid)}
                   actions={!active && (
                     <button

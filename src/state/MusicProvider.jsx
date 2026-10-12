@@ -5,6 +5,8 @@ import * as Q from "../lib/queue";
 import { foldBpm } from "../audio/analysis/dsp";
 import { arrange } from "../lib/arrange";
 import { energyLevels } from "../lib/energy";
+import { keyOf } from "../lib/key";
+import { radio } from "../lib/radio";
 import { load, save } from "../lib/storage";
 import { tempoOf } from "../lib/tempo";
 import { MusicContext } from "./useMusic";
@@ -157,6 +159,18 @@ const PlayerState = ({ library, children }) => {
     undoArrange: () => {
       setQueue({ ...queue, items: arrangeUndo.before });
       setArrangeUndo(null);
+    },
+    // Radio replaces the whole queue (like playing a list), so the seed starts playing at once.
+    startRadio: (seedId) => {
+      const info = Object.fromEntries(songs.map(({ id }) => {
+        const bpm = tempoOf(analysis[id]);
+        return [id, { energy: energy[id], bpm: bpm && foldBpm(bpm), camelot: keyOf(analysis[id])?.camelot ?? null }];
+      }));
+      const picks = radio(seedId, info);
+      if (picks.length < 2) return notify("Radio needs at least one other analysed song");
+      setQueue(Q.fromRadio(picks));
+      setIsPlaying(true);
+      notify(`Radio: ${picks.length - 1} songs like ${songById(seedId).title}`);
     },
     toggleShuffle: () => setQueue(queue.shuffled ? Q.unshuffle(queue) : Q.shuffle(queue)),
     cycleRepeat: () => setRepeat({ off: "all", all: "one", one: "off" }[repeat]),
