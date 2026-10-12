@@ -91,7 +91,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 - Everything already built (Units 01–06)
 - Importing local audio files (picker and drag-and-drop; on Chromium, optionally a folder), stored in IndexedDB, with tag and cover-art reading
 - Removing imported songs, and showing storage use; requesting persistent storage
-- An About page with the privacy note and credits. The app ships with no music.
+- An About page with the privacy note. The app ships with no music.
 - Playlists in localStorage
 - Loudness normalisation, musical key, Start radio, the Draw-your-vibe map and local synced lyrics (.lrc files the user imports), all computed or stored in the browser (Units 17–21)
 - The Web Audio playback engine, the analysis, Arrange my queue, smart crossfade, the visualiser and experimental beat-matching

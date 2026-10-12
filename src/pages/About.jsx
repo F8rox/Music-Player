@@ -18,13 +18,5 @@ export const About = () => (
         yourself.
       </p>
     </div>
-    <div className="panel about-card">
-      <h2>Credits</h2>
-      <ul>
-        <li>Inter, by Rasmus Andersson and contributors (SIL Open Font License 1.1)</li>
-        <li>Instrument Serif, by Instrument (SIL Open Font License 1.1)</li>
-        <li>music-metadata, dnd-kit, idb-keyval, React and React Router (MIT or Apache-2.0)</li>
-      </ul>
-    </div>
   </section>
 );
