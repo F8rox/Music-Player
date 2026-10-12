@@ -59,16 +59,22 @@ export const deleteSong = (id) =>
 const between = (value, min, max) => Number.isFinite(value) && value >= min && value <= max;
 const optional = (value, min, max) => (value === null ? true : between(value, min, max));
 
-// An outdated version or any bad field means "not analysed": the song is simply analysed again.
+// Version 1 (before key detection) is still read, with no key, so a tapped tempo survives; useAnalysis
+// then analyses that song again. Any other version or any bad field means "not analysed".
 export const validAnalysis = (raw) => {
-  if (!isObject(raw) || raw.v !== ANALYSIS_VERSION || !(raw.envelope instanceof Uint8Array)) return null;
+  if (!isObject(raw) || ![1, ANALYSIS_VERSION].includes(raw.v) || !(raw.envelope instanceof Uint8Array)) return null;
+  const key = raw.v === 1 ? { keyTonic: null, keyMode: null, keyConfidence: 0 } : raw;
   const ok = between(raw.loudness, -200, 10) && between(raw.onsetDensity, 0, 1000)
     && between(raw.introEnd, 0, 1e5) && between(raw.outroStart, raw.introEnd, 1e5)
     && optional(raw.bpm, 80, 160) && between(raw.bpmConfidence, 0, 1)
-    && optional(raw.beatOffset, 0, 10) && optional(raw.bpmOverride, 30, 300);
+    && optional(raw.beatOffset, 0, 10) && optional(raw.bpmOverride, 30, 300)
+    && optional(key.keyTonic, 0, 11) && Number.isInteger(key.keyTonic ?? 0)
+    && (key.keyMode === null || key.keyMode === "major" || key.keyMode === "minor")
+    && (key.keyTonic === null) === (key.keyMode === null) && between(key.keyConfidence, 0, 1);
   if (!ok) return null;
   const { v, envelope, loudness, onsetDensity, introEnd, outroStart, bpm, bpmConfidence, beatOffset, bpmOverride } = raw;
-  return { v, envelope, loudness, onsetDensity, introEnd, outroStart, bpm, bpmConfidence, beatOffset, bpmOverride };
+  const { keyTonic, keyMode, keyConfidence } = key;
+  return { v, envelope, loudness, onsetDensity, introEnd, outroStart, bpm, bpmConfidence, beatOffset, bpmOverride, keyTonic, keyMode, keyConfidence };
 };
 
 // { [songId]: AnalysisResult } for every valid cached analysis.

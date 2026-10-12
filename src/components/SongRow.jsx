@@ -1,4 +1,5 @@
 import { formatTime } from "../lib/format";
+import { keyOf } from "../lib/key";
 import { tempoOf } from "../lib/tempo";
 import { useMusic } from "../state/useMusic";
 
@@ -9,7 +10,7 @@ const durationLabel = (duration) => {
   return formatTime(duration);
 };
 
-// Energy dot + approximate tempo. Never colour alone: the dot carries a text label.
+// Energy dot + approximate tempo and key. Never colour alone: the dot carries a text label.
 const AnalysisInfo = ({ songId }) => {
   const { analysisOf, energyOf } = useMusic();
   const analysis = analysisOf(songId);
@@ -18,10 +19,12 @@ const AnalysisInfo = ({ songId }) => {
   if (!analysis) return null;
   const level = Math.round(energyOf(songId) ?? 3);
   const bpm = tempoOf(analysis);
+  const key = keyOf(analysis);
   return (
     <>
       <span className={`energy-dot energy-${level}`} role="img" aria-label={`Energy ${level} of 5`} />
       {bpm && <span className="song-bpm" title="Approximate tempo">~{Math.round(bpm)}</span>}
+      {key && <span className="song-bpm" title={`Approximate key: ${key.name}`}>{key.camelot}</span>}
     </>
   );
 };

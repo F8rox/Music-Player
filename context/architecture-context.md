@@ -50,7 +50,7 @@ blobs:    { id -> Blob }                  // audio; cover art under id + ":cover
 analysis: { id -> AnalysisResult }
 
 AnalysisResult = {
-  v: 1,                    // analysisVersion; a higher version re-analyses
+  v: 2,                    // analysisVersion; an older one is re-analysed once (v1 is still read, so its bpmOverride carries over)
   rmsEnvelope: Uint8Array, // ~10 Hz, 0..255 dB-scaled
   loudness: number,        // mean RMS dB
   onsetDensity: number,
@@ -59,7 +59,10 @@ AnalysisResult = {
   bpm: number | null,      // folded into 80–160
   bpmConfidence: 0..1,
   beatOffset: number | null, // seconds to the first beat
-  bpmOverride: number | null // the user's correction wins
+  bpmOverride: number | null, // the user's correction wins
+  keyTonic: 0..11 | null,  // 0 = C … 11 = B; null when nothing fitted (v1 records read as null)
+  keyMode: "major" | "minor" | null,
+  keyConfidence: 0..1      // Pearson correlation with the best Krumhansl profile; shown only at 0.5 or more
 }
 ```
 

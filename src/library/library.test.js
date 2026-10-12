@@ -72,8 +72,8 @@ describe("checkFile", () => {
 
 describe("analysis records", () => {
   const good = () => ({
-    v: 1, envelope: new Uint8Array([1, 2]), loudness: -12, onsetDensity: 2, introEnd: 1, outroStart: 180,
-    bpm: 120, bpmConfidence: 0.7, beatOffset: 0.2, bpmOverride: null,
+    v: 2, envelope: new Uint8Array([1, 2]), loudness: -12, onsetDensity: 2, introEnd: 1, outroStart: 180,
+    bpm: 120, bpmConfidence: 0.7, beatOffset: 0.2, bpmOverride: null, keyTonic: 9, keyMode: "minor", keyConfidence: 0.8,
   });
 
   it("accepts a valid result and strips extra fields", () => {
@@ -87,8 +87,23 @@ describe("analysis records", () => {
     ["outro before intro", { introEnd: 50, outroStart: 10 }],
     ["envelope not bytes", { envelope: [1, 2] }],
     ["absurd override", { bpmOverride: 5000 }],
+    ["key tonic out of range", { keyTonic: 12 }],
+    ["fractional key tonic", { keyTonic: 3.5 }],
+    ["unknown key mode", { keyMode: "dorian" }],
+    ["tonic without a mode", { keyMode: null }],
+    ["key confidence above 1", { keyConfidence: 2 }],
   ])("rejects %s", (_, extra) => {
     expect(validAnalysis({ ...good(), ...extra })).toBeNull();
+  });
+
+  it("reads a version 1 result with no key and keeps its tempo override", () => {
+    const legacy = { ...good(), v: 1, bpmOverride: 110 };
+    ["keyTonic", "keyMode", "keyConfidence"].forEach((field) => delete legacy[field]);
+    expect(validAnalysis(legacy)).toMatchObject({ v: 1, bpmOverride: 110, keyTonic: null, keyMode: null, keyConfidence: 0 });
+  });
+
+  it("allows a null key (nothing fitted)", () => {
+    expect(validAnalysis({ ...good(), keyTonic: null, keyMode: null, keyConfidence: 0 })).not.toBeNull();
   });
 
   it("allows a null tempo (no beat found)", () => {

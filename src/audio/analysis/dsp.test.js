@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyse, estimateBpm, foldBpm, introOutro, onsetEnvelope, rmsEnvelope } from "./dsp";
+import { analyse, estimateBpm, estimateKey, foldBpm, introOutro, onsetEnvelope, rmsEnvelope } from "./dsp";
 
 const RATE = 11025;
 const FPS = RATE / 128;
@@ -71,10 +71,35 @@ describe("introOutro", () => {
   });
 });
 
+// A chord of sines (with two harmonics each) at the given frequencies.
+const chord = (freqs, seconds = 20) =>
+  Float32Array.from({ length: RATE * seconds }, (_, i) =>
+    freqs.reduce((sum, f) => sum + [1, 0.5, 0.25].reduce((h, amp, n) => h + amp * Math.sin((2 * Math.PI * f * (n + 1) * i) / RATE), 0), 0) / 20);
+
+describe("estimateKey", () => {
+  it("finds C major from a C-E-G chord with the tonic in the bass", () => {
+    const key = estimateKey(chord([65.41, 261.63, 329.63, 392]), RATE);
+    expect(key).toMatchObject({ tonic: 0, mode: "major" });
+    expect(key.confidence).toBeGreaterThan(0.6);
+  });
+
+  it("finds A minor from an A-C-E chord with the tonic in the bass", () => {
+    const key = estimateKey(chord([110, 220, 261.63, 329.63]), RATE);
+    expect(key).toMatchObject({ tonic: 9, mode: "minor" });
+    expect(key.confidence).toBeGreaterThan(0.6);
+  });
+
+  it("gives low confidence for noise, and no key for silence or a short buffer", () => {
+    expect(estimateKey(noise(), RATE).confidence).toBeLessThan(0.4);
+    expect(estimateKey(new Float32Array(RATE * 20), RATE)).toEqual({ tonic: null, mode: null, confidence: 0 });
+    expect(estimateKey(new Float32Array(100), RATE).tonic).toBeNull();
+  });
+});
+
 describe("analyse", () => {
   it("returns a complete, versioned result", () => {
     const result = analyse(clickTrack(120, 20), RATE);
-    expect(result).toMatchObject({ v: 1, bpmOverride: null });
+    expect(result).toMatchObject({ v: 2, bpmOverride: null });
     expect(result.envelope).toBeInstanceOf(Uint8Array);
     expect(result.onsetDensity).toBeGreaterThan(1);
     expect(Number.isFinite(result.loudness)).toBe(true);

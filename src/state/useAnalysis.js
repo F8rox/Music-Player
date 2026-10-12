@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { analyseBlob } from "../audio/analysis/analyse";
+import { ANALYSIS_VERSION } from "../audio/analysis/dsp";
 import { getBlob, listAnalysis, putAnalysis } from "../library/db";
 
 const fetchBlob = async (song) => (song.url ? (await fetch(song.url)).blob() : getBlob(song.id));
 
-// { [songId]: AnalysisResult | "pending" | "failed" }. Cached results load once; missing songs are
-// analysed one at a time (Invariant 10), yielding between songs so the UI stays responsive.
+// { [songId]: AnalysisResult | "pending" | "failed" }. Cached results load once; missing or outdated
+// songs are analysed one at a time (Invariant 10), yielding between songs so the UI stays responsive.
+// An outdated result stays usable until its replacement arrives, and its tapped tempo carries over.
 export const useAnalysis = (songs) => {
   const [results, setResults] = useState(null); // null until the cache is read
   const queue = useRef([]);
   const queued = useRef(new Set());
+  const carried = useRef({}); // songId → bpmOverride from the outdated result being replaced
   const running = useRef(false);
 
   useEffect(() => {
@@ -30,11 +33,13 @@ export const useAnalysis = (songs) => {
       try {
         const blob = await fetchBlob(song);
         result = blob && (await analyseBlob(song.id, blob));
+        if (result) result.bpmOverride = carried.current[song.id] ?? null;
         if (result) await putAnalysis(song.id, result);
       } catch {
         result = null;
       }
-      setResults((r) => ({ ...r, [song.id]: result ?? "failed" }));
+      // A failed re-analysis keeps the outdated (still usable) result.
+      setResults((r) => ({ ...r, [song.id]: result ?? (r[song.id]?.v ? r[song.id] : "failed") }));
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
     running.current = false;
@@ -42,11 +47,15 @@ export const useAnalysis = (songs) => {
 
   useEffect(() => {
     if (!results) return;
-    const missing = songs.filter((song) => !results[song.id] && !queued.current.has(song.id));
+    const outdated = (song) => results[song.id]?.v < ANALYSIS_VERSION;
+    const missing = songs.filter((song) => (!results[song.id] || outdated(song)) && !queued.current.has(song.id));
     if (missing.length === 0) return;
-    missing.forEach((song) => queued.current.add(song.id));
+    missing.forEach((song) => {
+      queued.current.add(song.id);
+      if (outdated(song)) carried.current[song.id] = results[song.id].bpmOverride;
+    });
     queue.current.push(...missing);
-    setResults((r) => ({ ...r, ...Object.fromEntries(missing.map((song) => [song.id, "pending"])) }));
+    setResults((r) => ({ ...r, ...Object.fromEntries(missing.filter((song) => !outdated(song)).map((song) => [song.id, "pending"])) }));
     pump();
   }, [results, songs, pump]);
 

@@ -1,4 +1,5 @@
 import { Icon } from "./Icon";
+import { keyOf } from "../lib/key";
 import { tempoOf } from "../lib/tempo";
 import { useMusic } from "../state/useMusic";
 import { ImportButton } from "./ImportButton";
@@ -22,6 +23,7 @@ export const NowPlayingHero = () => {
 
   const level = Math.round(energyOf(currentTrack.id) ?? 3);
   const bpm = tempoOf(analysisOf(currentTrack.id));
+  const key = keyOf(analysisOf(currentTrack.id));
   return (
     <section className={`hero hero-energy-${level}`}>
       <p className="hero-label">{isPlaying ? "Now playing" : "Paused"}</p>
@@ -32,6 +34,7 @@ export const NowPlayingHero = () => {
       <div className="hero-meta">
         <span className="chip">Energy {level}/5</span>
         {bpm && <span className="chip">~{Math.round(bpm)} BPM</span>}
+        {key && <span className="chip" title="Camelot code, for mixing">~{key.name} · {key.camelot}</span>}
         <button
           type="button"
           className="control-btn play-btn hero-play"
