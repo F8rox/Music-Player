@@ -15,6 +15,7 @@ import { useAnalysis } from "./useAnalysis";
 import { useCrossfade } from "./useCrossfade";
 import { useDurations } from "./useDurations";
 import { useLibrary } from "./useLibrary";
+import { useLyrics } from "./useLyrics";
 import { usePlayback } from "./usePlayback";
 import { usePlaylists } from "./usePlaylists";
 import { useSongUrl } from "./useSongUrl";
@@ -57,6 +58,7 @@ const PlayerState = ({ library, children }) => {
     if (stopped) setIsPlaying(false);
   };
 
+  const lyrics = useLyrics(currentTrack?.id, library.lyricsVersion);
   const positionToSave = usePlayback({
     url: useSongUrl(currentTrack),
     currentQid: queue.currentQid,
@@ -112,6 +114,7 @@ const PlayerState = ({ library, children }) => {
     durationOf,
     settings,
     setSettings,
+    lyrics,
     analysisOf: (songId) => analysis[songId],
     energyOf: (songId) => energy[songId],
     setTempo,

@@ -48,6 +48,7 @@ src/components, src/pages   render state, call actions; no rules, no audio nodes
 songs:    { id: "u:<sha256>", title, artist, album, durationSec, addedAt, mime, size, hasCover }
 blobs:    { id -> Blob }                  // audio; cover art under id + ":cover"
 analysis: { id -> AnalysisResult }
+lyrics:   { id -> string }                // the imported .lrc text (max 200 KB); parsed on every read, so a bad value means no lyrics
 
 AnalysisResult = {
   v: 2,                    // analysisVersion; an older one is re-analysed once (v1 is still read, so its bpmOverride carries over)

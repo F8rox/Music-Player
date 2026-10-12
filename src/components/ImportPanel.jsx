@@ -7,9 +7,12 @@ const LABELS = {
   invalid: "Can't play this file",
   "too-big": "Too big (over 100 MB)",
   "no-space": "Not enough storage",
+  "lyrics-added": "Lyrics added",
+  "no-match": "No song with this name",
+  "bad-lyrics": "Not a synced lyrics file",
   error: "Couldn't add",
 };
-const FAILED = ["invalid", "too-big", "no-space", "error"];
+const FAILED = ["invalid", "too-big", "no-space", "error", "no-match", "bad-lyrics"];
 
 export const ImportPanel = () => {
   const { imports, importing, clearImports } = useMusic();

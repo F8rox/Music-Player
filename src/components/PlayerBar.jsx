@@ -6,7 +6,7 @@ import { SettingsPopover } from "./SettingsPopover";
 import { Visualiser } from "./Visualiser";
 
 // A view: playback itself lives in the engine, driven by the provider.
-export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
+export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef, lyricsOpen, onToggleLyrics, lyricsToggleRef }) => {
   const {
     currentTrack, isPlaying, setIsPlaying, volume, setVolume, nextTrack, prevTrack, seek,
     shuffled, toggleShuffle, repeat, cycleRepeat,
@@ -84,6 +84,17 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef }) => {
           onChange={(e) => setVolume(Number(e.target.value))}
           style={{ "--progress": `${volume * 100}%` }}
         />
+        <button
+          ref={lyricsToggleRef}
+          className="control-btn"
+          aria-label="Lyrics"
+          aria-expanded={lyricsOpen}
+          aria-controls="lyrics-panel"
+          disabled={disabled}
+          onClick={onToggleLyrics}
+        >
+          <Icon name="lyrics" />
+        </button>
         <button
           ref={queueToggleRef}
           className="control-btn"

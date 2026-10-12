@@ -1,6 +1,7 @@
 // The only module that touches IndexedDB. Records read back are untrusted (Invariant 5).
 import { createStore, delMany, get, getMany, keys, set, setMany } from "idb-keyval";
 import { ANALYSIS_VERSION } from "../audio/analysis/dsp";
+import { MAX_LRC_BYTES, parseLrc } from "../lib/lrc";
 import { cleanText } from "../lib/tags";
 
 const store = createStore("music-player", "library");
@@ -54,7 +55,7 @@ export const getBlob = async (id) => {
 };
 
 export const deleteSong = (id) =>
-  delMany([`song:${id}`, `blob:${id}`, `cover:${id}`, `analysis:${id}`], store);
+  delMany([`song:${id}`, `blob:${id}`, `cover:${id}`, `analysis:${id}`, `lyrics:${id}`], store);
 
 const between = (value, min, max) => Number.isFinite(value) && value >= min && value <= max;
 const optional = (value, min, max) => (value === null ? true : between(value, min, max));
@@ -87,3 +88,10 @@ export const listAnalysis = async () => {
 };
 
 export const putAnalysis = (id, result) => set(`analysis:${id}`, result, store);
+
+// Lyrics are stored as the .lrc text and parsed on every read (untrusted): bad or missing means no lyrics.
+export const putLyrics = (id, text) => set(`lyrics:${id}`, text, store);
+export const getLyrics = async (id) => {
+  const text = await get(`lyrics:${id}`, store);
+  return typeof text === "string" && text.length <= MAX_LRC_BYTES ? parseLrc(text) : [];
+};

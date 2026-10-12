@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { filesFromDirectory } from "../library/importFiles";
 import { useMusic } from "../state/useMusic";
 
-const ACCEPT = "audio/*,.mp3,.m4a,.aac,.ogg,.oga,.opus,.wav,.flac";
+const ACCEPT = "audio/*,.mp3,.m4a,.aac,.ogg,.oga,.opus,.wav,.flac,.lrc";
 
 export const ImportButton = () => {
   const { importFiles, importing } = useMusic();

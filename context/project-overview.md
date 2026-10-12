@@ -93,6 +93,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 - Removing imported songs, and showing storage use; requesting persistent storage
 - Free-licensed (CC0/CC-BY) demo tracks with credits, replacing the commercial mp3s
 - Playlists in localStorage
+- Loudness normalisation, musical key, Start radio, the Draw-your-vibe map and local synced lyrics (.lrc files the user imports), all computed or stored in the browser (Units 17–21)
 - The Web Audio playback engine, the analysis, Arrange my queue, smart crossfade, the visualiser and experimental beat-matching
 - Responsive layout down to 360px, keyboard and screen reader access
 - Deploying the static build to GitHub Pages
@@ -101,8 +102,8 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 - YouTube, YouTube Music, Spotify or any streaming API or embed
 - A backend, accounts, login, uploads to any server, or sync between devices
 - Any network request except same-origin app files and bundled demo tracks
-- Lyrics, fetching album art from the internet, radio and recommendations, likes and ratings
-- Equalizer, playback speed control, pitch-preserving time-stretch, musical key detection
+- Fetching lyrics or album art from the internet, recommendations from other users, likes and ratings
+- Equalizer, playback speed control, pitch-preserving time-stretch
 - Downloads, an offline/PWA install, desktop or mobile app packaging
 - Sharing playlists, playlist import and export (Phase 3)
 - Mixing more than two songs at once, loops, cue points or manual DJ controls

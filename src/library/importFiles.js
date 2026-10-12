@@ -1,4 +1,5 @@
 import { parseBlob } from "music-metadata";
+import { MAX_LRC_BYTES, isLrcName, parseLrc } from "../lib/lrc";
 import { songInfo } from "../lib/tags";
 import { addSong, hasSong } from "./db";
 
@@ -57,13 +58,24 @@ const fits = async (bytes) => {
   return !estimate?.quota || estimate.usage + bytes < estimate.quota;
 };
 
+// A .lrc file's text, or a status when it can't be used (wrong type, over 200 KB, no timed lines).
+export const readLyrics = async (file) => {
+  if (!isLrcName(file.name) || file.size > MAX_LRC_BYTES) return { status: "bad-lyrics" };
+  try {
+    const text = await file.text();
+    return parseLrc(text).length > 0 ? { text } : { status: "bad-lyrics" };
+  } catch {
+    return { status: "error" };
+  }
+};
+
 // Returns { status, song? }. status: added | duplicate | invalid | too-big | no-space | error
 export const importFile = async (file) => {
   const rejected = checkFile(file);
   if (rejected) return { status: rejected };
   try {
     const id = await hashId(file);
-    if (await hasSong(id)) return { status: "duplicate" };
+    if (await hasSong(id)) return { status: "duplicate", id };
     const durationSec = await probeDuration(file);
     if (!durationSec) return { status: "invalid" };
     const common = await readTags(file);
@@ -85,7 +97,7 @@ export const filesFromDirectory = async (dir) => {
   const files = [];
   for await (const entry of dir.values()) {
     if (entry.kind === "directory") files.push(...(await filesFromDirectory(entry)));
-    else if (isAudioName(entry.name)) files.push(await entry.getFile());
+    else if (isAudioName(entry.name) || isLrcName(entry.name)) files.push(await entry.getFile());
   }
   return files;
 };

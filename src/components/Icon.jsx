@@ -8,6 +8,7 @@ const PATHS = {
   shuffle: <path d="M16 4h4v4M4 20 20 4M20 16v4h-4M15 15l5 5M4 4l5 5" />,
   repeat: <path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4" />,
   queue: <path d="M4 6h12M4 12h12M4 18h8M18 14v6l4-3z" />,
+  lyrics: <path d="M4 6h16M4 11h10M4 16h16M4 21h7" />,
   settings: <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />,
 };
 

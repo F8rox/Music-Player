@@ -6,6 +6,7 @@ import { ImportPanel } from "./components/ImportPanel";
 import { Notice } from "./components/Notice";
 import { WaveBackground } from "./components/WaveBackground";
 import { PlayerBar } from "./components/PlayerBar";
+import { LyricsPanel } from "./components/LyricsPanel";
 import { QueuePanel } from "./components/QueuePanel";
 import { AllSongs } from "./pages/AllSongs";
 import { PlaylistDetail } from "./pages/PlaylistDetail";
@@ -14,12 +15,17 @@ import { VibeMap } from "./pages/VibeMap";
 import { MusicProvider } from "./state/MusicProvider";
 
 function App() {
-  const [queueOpen, setQueueOpen] = useState(false);
+  const [panel, setPanel] = useState(null); // "queue" | "lyrics" | null: one side panel at a time
   const queueToggleRef = useRef(null);
+  const lyricsToggleRef = useRef(null);
 
   const closeQueue = useCallback(() => {
-    setQueueOpen(false);
+    setPanel(null);
     queueToggleRef.current.focus();
+  }, []);
+  const closeLyrics = useCallback(() => {
+    setPanel(null);
+    lyricsToggleRef.current.focus();
   }, []);
 
   return (
@@ -36,15 +42,19 @@ function App() {
               <Route path="/playlists/:id" element={<PlaylistDetail />} />
             </Routes>
           </main>
-          {queueOpen && <QueuePanel onClose={closeQueue} />}
+          {panel === "queue" && <QueuePanel onClose={closeQueue} />}
+          {panel === "lyrics" && <LyricsPanel onClose={closeLyrics} />}
         </div>
         <DropZone />
         <ImportPanel />
         <Notice />
         <PlayerBar
-          queueOpen={queueOpen}
-          onToggleQueue={() => setQueueOpen(!queueOpen)}
+          queueOpen={panel === "queue"}
+          onToggleQueue={() => setPanel(panel === "queue" ? null : "queue")}
           queueToggleRef={queueToggleRef}
+          lyricsOpen={panel === "lyrics"}
+          onToggleLyrics={() => setPanel(panel === "lyrics" ? null : "lyrics")}
+          lyricsToggleRef={lyricsToggleRef}
         />
       </BrowserRouter>
     </MusicProvider>

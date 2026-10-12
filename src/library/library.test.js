@@ -1,8 +1,8 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
 import { set, createStore } from "idb-keyval";
-import { addSong, deleteSong, getBlob, hasSong, listAnalysis, listSongs, putAnalysis, validAnalysis, validSong } from "./db";
-import { checkFile } from "./importFiles";
+import { addSong, deleteSong, getBlob, getLyrics, hasSong, listAnalysis, listSongs, putAnalysis, putLyrics, validAnalysis, validSong } from "./db";
+import { checkFile, readLyrics } from "./importFiles";
 
 const id = (n) => "u:" + String(n).repeat(64).slice(0, 64);
 const record = (n, extra = {}) => ({
@@ -67,6 +67,42 @@ describe("checkFile", () => {
 
   it("rejects files over 100 MB", () => {
     expect(checkFile(file("a.mp3", "audio/mpeg", 101 * 1024 * 1024))).toBe("too-big");
+  });
+});
+
+describe("lyrics", () => {
+  const lrc = "[00:01.00]one\n[00:02.00]two";
+  const lrcFile = (name, text, size = text.length) => ({ name, size, text: async () => text });
+
+  it("round-trips through IndexedDB as parsed lines, and a song with none gives []", async () => {
+    await putLyrics(id(7), lrc);
+    expect(await getLyrics(id(7))).toEqual([{ time: 1, text: "one" }, { time: 2, text: "two" }]);
+    expect(await getLyrics(id(8))).toEqual([]);
+  });
+
+  it("treats a corrupt stored value as no lyrics", async () => {
+    for (const bad of [42, { evil: 1 }, ["[00:01.00]x"], null, "x".repeat(300 * 1024)]) {
+      await set(`lyrics:${id(9)}`, bad, rawStore);
+      expect(await getLyrics(id(9))).toEqual([]);
+    }
+  });
+
+  it("is removed with its song", async () => {
+    await addSong(record(6), new Blob(["a"]), null);
+    await putLyrics(id(6), lrc);
+    await deleteSong(id(6));
+    expect(await getLyrics(id(6))).toEqual([]);
+  });
+
+  it("readLyrics returns the text of a good .lrc file", async () => {
+    expect(await readLyrics(lrcFile("a.LRC", lrc))).toEqual({ text: lrc });
+  });
+
+  it("readLyrics rejects wrong types, oversize files and files with no timed lines", async () => {
+    expect(await readLyrics(lrcFile("a.txt", lrc))).toEqual({ status: "bad-lyrics" });
+    expect(await readLyrics(lrcFile("a.lrc", lrc, 300 * 1024))).toEqual({ status: "bad-lyrics" });
+    expect(await readLyrics(lrcFile("a.lrc", "just words"))).toEqual({ status: "bad-lyrics" });
+    expect(await readLyrics({ name: "a.lrc", size: 5, text: async () => { throw new Error("unreadable"); } })).toEqual({ status: "error" });
   });
 });
 
