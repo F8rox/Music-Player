@@ -28,6 +28,14 @@ export const SettingsPopover = () => {
           <label className="setting-row">
             <input
               type="checkbox"
+              checked={settings.normalise}
+              onChange={(e) => update({ normalise: e.target.checked })}
+            />
+            Normalise volume
+          </label>
+          <label className="setting-row">
+            <input
+              type="checkbox"
               checked={settings.crossfade}
               onChange={(e) => update({ crossfade: e.target.checked })}
             />

@@ -67,6 +67,11 @@ const finishTransition = () => {
   setGain(decks[current], 1);
 };
 
+const setNormOn = (deck, value) => {
+  deck.normValue = value;
+  if (deck.norm) ramp(deck.norm.gain, value, value, 0);
+};
+
 const buildGraph = () => {
   deckEl();
   const ctx = new AudioContext();
@@ -75,8 +80,10 @@ const buildGraph = () => {
   master.gain.value = volume;
   master.connect(analyser).connect(ctx.destination);
   for (const deck of decks) {
-    deck.gain = ctx.createGain();
-    ctx.createMediaElementSource(deck.el).connect(deck.gain).connect(master);
+    deck.gain = ctx.createGain(); // fades
+    deck.norm = ctx.createGain(); // loudness normalisation (Unit 17), kept separate from fades
+    deck.norm.gain.value = deck.normValue ?? 1;
+    ctx.createMediaElementSource(deck.el).connect(deck.norm).connect(deck.gain).connect(master);
   }
   return { ctx, master, analyser };
 };
@@ -132,7 +139,7 @@ export const engine = {
   },
   // Sample-accurate start on the outgoing song's beat (media elements jitter by tens of ms).
   // Returns false when no matching segment is ready; the caller then uses crossfadeTo.
-  beatMatchTo: (url, { at, offset, rate, fadeSeconds, key }) => {
+  beatMatchTo: (url, { at, offset, rate, fadeSeconds, key, norm = 1 }) => {
     if (!graph || beatSegment?.url !== url || beatSegment.offset !== offset || beatSegment.rate !== rate) return false;
     finishTransition();
     const ctx = graph.ctx;
@@ -144,7 +151,9 @@ export const engine = {
     const segmentGain = ctx.createGain();
     source.buffer = beatSegment.buffer;
     source.playbackRate.value = rate;
-    source.connect(segmentGain).connect(graph.master);
+    const segmentNorm = ctx.createGain();
+    segmentNorm.gain.value = norm;
+    source.connect(segmentNorm).connect(segmentGain).connect(graph.master);
     const { out, into } = fadeCurves();
     decks[from].gain.gain.cancelScheduledValues(0);
     decks[from].gain.gain.setValueCurveAtTime(out, when, fadeSeconds);
@@ -153,6 +162,7 @@ export const engine = {
     source.start(when);
     // The deck waits silently at the position the segment will have reached by the handoff.
     const incoming = decks[to].el;
+    setNormOn(decks[to], norm);
     if (incoming.getAttribute("src") !== url) incoming.src = url;
     incoming.currentTime = offset + rate * fadeSeconds;
     setGain(decks[to], 0);
@@ -178,12 +188,13 @@ export const engine = {
   transitioning: () => Boolean(transition),
   cancelTransition: () => finishTransition(),
   // Equal-power blend on the audio clock; the incoming deck becomes current immediately.
-  crossfadeTo: (url, { nextOffset, fadeSeconds, key }) => {
+  crossfadeTo: (url, { nextOffset, fadeSeconds, key, norm = 1 }) => {
     graph ??= buildGraph();
     finishTransition();
     const from = current;
     const to = 1 - current;
     const incoming = decks[to].el;
+    setNormOn(decks[to], norm);
     if (incoming.getAttribute("src") !== url) incoming.src = url;
     incoming.currentTime = nextOffset;
     const now = graph.ctx.currentTime;
@@ -205,6 +216,13 @@ export const engine = {
   currentTime: () => (decks ? decks[current].el.currentTime : 0),
   // Test hook: which deck is audible and each deck's state.
   decks: () => decks?.map((d, i) => ({ current: i === current, paused: d.el.paused, src: d.el.getAttribute("src"), time: d.el.currentTime, gain: d.gain?.gain.value })),
+  // Normalisation for whatever the current deck plays; a short ramp avoids a click.
+  setNorm: (value) => {
+    deckEl();
+    const deck = decks[current];
+    deck.normValue = value;
+    if (deck.norm) ramp(deck.norm.gain, deck.norm.gain.value, value, 0.3);
+  },
   setVolume: (value) => {
     volume = value;
     if (graph) graph.master.gain.value = value;

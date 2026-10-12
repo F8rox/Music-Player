@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { engine } from "../audio/engine";
 import * as Q from "../lib/queue";
 import { canBeatMatch, planBeatMatch } from "../lib/beatmatch";
+import { normalisationGain } from "../lib/loudness";
 import { tempoOf } from "../lib/tempo";
 import { planTransition } from "../lib/transition";
 import { useSongUrl } from "./useSongUrl";
@@ -29,9 +30,17 @@ export const useCrossfade = ({ saved, queue, repeat, isPlaying, analysisOf, song
   const b = nextItem && analysisOf(nextItem.songId);
   const beat = plan && settings.beatMatch && canBeatMatch(a, b) ? planBeatMatch(a, b, plan) : null;
 
+  // Loudness normalisation (Unit 17): current deck now; the incoming deck gets its gain at blend time.
+  const gainOf = (analysis) => normalisationGain(analysis?.loudness, settings.normalise);
+  const currentGain = gainOf(a);
+  const nextGain = gainOf(b);
+  useEffect(() => {
+    engine.setNorm(currentGain);
+  }, [currentGain, queue.currentQid]);
+
   const latest = useRef(null);
   useEffect(() => {
-    latest.current = { plan, beat, bpm: b && tempoOf(b), nextUrl, nextItem, ended, isPlaying, advance, notify };
+    latest.current = { plan, beat, bpm: b && tempoOf(b), nextGain, nextUrl, nextItem, ended, isPlaying, advance, notify };
   });
 
   useEffect(() => {
@@ -47,14 +56,14 @@ export const useCrossfade = ({ saved, queue, repeat, isPlaying, analysisOf, song
     if (!s?.plan || !s.nextUrl || !s.isPlaying || engine.transitioning()) return;
     // A beat-match is scheduled ~0.5 s ahead so it can start exactly on the beat.
     if (s.beat && e.target.currentTime >= s.beat.at - 0.5) {
-      if (engine.beatMatchTo(s.nextUrl, { ...s.beat, key: s.nextItem.qid })) {
+      if (engine.beatMatchTo(s.nextUrl, { ...s.beat, key: s.nextItem.qid, norm: s.nextGain })) {
         s.notify(`Beat-matched (~${Math.round(s.bpm)} BPM)`);
         s.advance(s.ended);
         return;
       }
     }
     if (e.target.currentTime < s.plan.startAt) return;
-    engine.crossfadeTo(s.nextUrl, { ...s.plan, key: s.nextItem.qid }).catch(() => engine.cancelTransition());
+    engine.crossfadeTo(s.nextUrl, { ...s.plan, key: s.nextItem.qid, norm: s.nextGain }).catch(() => engine.cancelTransition());
     s.advance(s.ended);
   }), []);
 
