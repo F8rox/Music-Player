@@ -62,6 +62,7 @@ src/
       analyse.js              main-thread decode + worker hand-off
       analysis.worker.js      DSP entry point
       dsp.js  dsp.test.js     pure DSP: rms, intro/outro, onset, bpm
+  lib/energy.js  lib/tempo.js   energy percentiles; tap tempo + override
   state/
     MusicProvider.jsx  useMusic.js  useDurations.js  useLibrary.js  useSongUrl.js  usePlaylists.js
     usePlayback.js  usePlaybackTime.js   (engine ↔ React; time is PlayerBar-only)
