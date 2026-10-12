@@ -289,8 +289,7 @@ h2 {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  overflow: hidden;
-  z-index: 10;
+  z-index: 10; /* no overflow:hidden here: the settings popover opens upward out of the dock */
 }
 
 .track-info {
@@ -887,6 +886,7 @@ h2 {
 /* ---------- Visualiser (behind the track info) ---------- */
 .track-info {
   position: relative;
+  overflow: hidden; /* clips the visualiser to its own area */
   align-self: stretch;
   display: flex;
   flex-direction: column;
