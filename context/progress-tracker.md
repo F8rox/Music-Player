@@ -96,6 +96,7 @@ Dev server: `npm run dev -- --port 5199 --host 127.0.0.1`. Port 5173 is used by 
 | Test files for import | `D:\DAD songs` (5 mp3s) | Unit 07 import, dedupe and refresh tests | provided 2026-10-12 |
 
 ## Session Notes
+- 2026-10-13: The desktop `.exe` idea (an Electron wrapper in a separate folder outside this repo) was dropped at the owner's request and its folder and caches were deleted. Nothing in this repo referenced it.
 - 2026-10-13: Units 22 (album art) and 23 (select and delete) added at the owner's request after a friend's feedback; specs in `context/featureSpecs/22-album-art.md` and `23-select-and-delete.md`. Art still comes only from the song file; fetching art online stays out of scope.
 - 2026-10-13: The owner does not want a hosted site: the repo is only for downloading the ZIP. The GitHub Pages workflow was removed (Pages was never switched on, so nothing was ever deployed). The Unit 16 release items (base path, `404.html`, deploy workflow) are now unused; the production CSP and base-path config stay in `vite.config.js` and are harmless.
 - 2026-10-13: Unit 16 built. Owner decisions: no demo tracks (empty app), design approved, beat-matching listening check passed. Added the dev dependency `axe-core` (accessibility scans only; not in the shipped bundle). Still open for the owner: key spot-check (Unit 18), touch tests (Units 5 and 20), Firefox and a full browser restart (Unit 7), creating the GitHub repository and turning on Pages (Settings → Pages → Source: GitHub Actions), then putting the live link in README.
