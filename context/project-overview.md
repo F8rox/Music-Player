@@ -89,7 +89,7 @@ Phase 3 (not prompted): Media Session hardware keys, keyboard shortcuts, playlis
 
 ### In Scope
 - Everything already built (Units 01–06)
-- Importing local audio files (picker and drag-and-drop; on Chromium, optionally a folder), stored in IndexedDB, with tag and cover-art reading
+- Importing local audio files (file picker, drag-and-drop, and a folder picker that adds everything inside, sub-folders included), stored in IndexedDB, with tag and cover-art reading
 - Removing imported songs, and showing storage use; requesting persistent storage
 - An About page with the privacy note. The app ships with no music.
 - Playlists in localStorage

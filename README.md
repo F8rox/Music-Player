@@ -6,13 +6,13 @@ Built spec-first: see [AGENTS.md](AGENTS.md) and [context/](context/).
 
 ## Using it
 
-The app starts empty. Add songs with **Add your music** (or drag files onto the page, or **Add a folder** on Chromium). Songs are stored in your browser and analysed once. To show synced lyrics, add an `.lrc` file with the same name as the song.
+The app starts empty. Add songs with **Add your music** (or drag files onto the page, or **Add a folder** to add everything inside one, including sub-folders). Songs are stored in your browser and analysed once. To show synced lyrics, add an `.lrc` file with the same name as the song.
 
 Libraries are per browser and per address: songs added in one browser are not in another, and `localhost` and `127.0.0.1` are separate libraries.
 
 ## Supported browsers
 
-Desktop Chrome, Edge and Firefox are fully supported. Safari works except for **Add a folder** (use the file picker or drag and drop).
+Desktop Chrome, Edge and Firefox are fully supported. Safari works too.
 
 ## Run it
 
