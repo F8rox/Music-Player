@@ -131,6 +131,7 @@ const PlayerState = ({ library, children }) => {
     volume,
     setVolume,
     notice,
+    notify,
     repeat,
     shuffled: queue.shuffled,
     playFromList: (ids, index) => {

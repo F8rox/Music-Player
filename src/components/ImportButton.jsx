@@ -5,15 +5,22 @@ import { useMusic } from "../state/useMusic";
 const ACCEPT = "audio/*,.mp3,.m4a,.aac,.ogg,.oga,.opus,.wav,.flac,.lrc";
 
 export const ImportButton = () => {
-  const { importFiles, importing } = useMusic();
+  const { importFiles, importing, notify } = useMusic();
   const inputRef = useRef(null);
 
   const pickFolder = async () => {
+    let files;
     try {
-      importFiles(await filesFromDirectory(await window.showDirectoryPicker()));
-    } catch {
-      // The user cancelled the folder picker.
+      files = await filesFromDirectory(await window.showDirectoryPicker());
+    } catch (error) {
+      // Cancelling is silent; anything else (Chrome refuses Downloads, Desktop and Documents themselves) is said out loud.
+      if (error.name !== "AbortError") {
+        notify("Couldn't open that folder. Pick a folder inside Downloads, Desktop or Documents, not the folder itself, or use Add your music.");
+      }
+      return;
     }
+    if (files.length === 0) return notify("No songs found in that folder.");
+    importFiles(files);
   };
 
   return (
