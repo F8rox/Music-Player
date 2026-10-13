@@ -1,12 +1,10 @@
 import { parseBlob } from "music-metadata";
 import { MAX_LRC_BYTES, isLrcName, parseLrc } from "../lib/lrc";
 import { songInfo } from "../lib/tags";
-import { addSong, hasSong } from "./db";
+import { COVER_TYPES, MAX_COVER, addSong, hasSong } from "./db";
 
 const AUDIO_EXT = /\.(mp3|m4a|aac|ogg|oga|opus|wav|flac)$/i;
 const MAX_BYTES = 100 * 1024 * 1024;
-const COVER_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_COVER = 2 * 1024 * 1024;
 
 // Pure pre-check: null when the file may be audio we accept, otherwise a status.
 export const checkFile = (file) => {

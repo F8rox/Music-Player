@@ -96,7 +96,7 @@ export const SongMenu = ({ song }) => {
           onCancel={() => setConfirming(false)}
           onConfirm={() => {
             setConfirming(false);
-            removeFromLibrary(song.id);
+            removeFromLibrary([song.id]);
           }}
         />
       )}

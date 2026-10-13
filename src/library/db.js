@@ -6,6 +6,8 @@ import { cleanText } from "../lib/tags";
 
 const store = createStore("music-player", "library");
 const ID = /^u:[0-9a-f]{64}$/;
+export const COVER_TYPES = ["image/jpeg", "image/png", "image/webp"];
+export const MAX_COVER = 2 * 1024 * 1024;
 
 const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 const finite = (value, fallback = 0) => (Number.isFinite(value) ? value : fallback);
@@ -51,6 +53,12 @@ export const addSong = (record, blob, cover) =>
 export const getBlob = async (id) => {
   const blob = await get(`blob:${id}`, store);
   return blob instanceof Blob ? blob : null;
+};
+
+// A stored cover is only used if it is still a small JPEG, PNG or WebP blob.
+export const getCover = async (id) => {
+  const blob = await get(`cover:${id}`, store);
+  return blob instanceof Blob && COVER_TYPES.includes(blob.type) && blob.size <= MAX_COVER ? blob : null;
 };
 
 export const deleteSong = (id) =>

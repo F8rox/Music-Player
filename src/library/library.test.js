@@ -1,7 +1,7 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
 import { set, createStore } from "idb-keyval";
-import { addSong, deleteSong, getBlob, getLyrics, hasSong, listAnalysis, listSongs, putAnalysis, putLyrics, validAnalysis, validSong } from "./db";
+import { addSong, deleteSong, getBlob, getCover, getLyrics, hasSong, listAnalysis, listSongs, putAnalysis, putLyrics, validAnalysis, validSong } from "./db";
 import { checkFile, readLyrics } from "./importFiles";
 
 const id = (n) => "u:" + String(n).repeat(64).slice(0, 64);
@@ -67,6 +67,31 @@ describe("checkFile", () => {
 
   it("rejects files over 100 MB", () => {
     expect(checkFile(file("a.mp3", "audio/mpeg", 101 * 1024 * 1024))).toBe("too-big");
+  });
+});
+
+describe("covers", () => {
+  const png = () => new Blob([new Uint8Array([1, 2, 3])], { type: "image/png" });
+
+  it("returns a stored cover and null for a song without one", async () => {
+    await addSong(record(4), new Blob(["a"]), png());
+    expect((await getCover(id(4))).type).toBe("image/png");
+    await addSong(record(5), new Blob(["a"]), null);
+    expect(await getCover(id(5))).toBeNull();
+  });
+
+  it("rejects a stored value that is not a small JPEG, PNG or WebP blob", async () => {
+    for (const bad of [new Blob(["x"], { type: "text/html" }), new Blob(["x"], { type: "image/svg+xml" }),
+      new Blob([new Uint8Array(3 * 1024 * 1024)], { type: "image/png" }), "data:image/png;base64,AAAA", { type: "image/png" }, 42]) {
+      await set(`cover:${id(8)}`, bad, rawStore);
+      expect(await getCover(id(8))).toBeNull();
+    }
+  });
+
+  it("is deleted with its song", async () => {
+    await addSong(record(3), new Blob(["a"]), png());
+    await deleteSong(id(3));
+    expect(await getCover(id(3))).toBeNull();
   });
 });
 

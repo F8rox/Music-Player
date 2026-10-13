@@ -1,3 +1,4 @@
+import { Cover } from "./Cover";
 import { Icon } from "./Icon";
 import { useMusic } from "../state/useMusic";
 import { usePlaybackTime } from "../state/usePlaybackTime";
@@ -17,8 +18,11 @@ export const PlayerBar = ({ queueOpen, onToggleQueue, queueToggleRef, lyricsOpen
       <div className="mini-progress" aria-hidden="true" style={{ "--progress": `${duration > 0 ? (current / duration) * 100 : 0}%` }} />
       <div className="track-info">
         <Visualiser />
-        <p className="track-title">{currentTrack?.title ?? "Nothing playing"}</p>
-        <p className="track-artist">{currentTrack?.artist ?? "Pick a song to start"}</p>
+        {currentTrack && <Cover song={currentTrack} eager />}
+        <div className="track-text">
+          <p className="track-title">{currentTrack?.title ?? "Nothing playing"}</p>
+          <p className="track-artist">{currentTrack?.artist ?? "Pick a song to start"}</p>
+        </div>
       </div>
 
       <div className="player-center">

@@ -55,9 +55,9 @@ export const useLibrary = () => {
     }
   };
 
-  const remove = async (id) => {
-    await deleteSong(id);
-    setSongs((list) => list.filter((song) => song.id !== id));
+  const remove = async (ids) => {
+    await Promise.all(ids.map(deleteSong));
+    setSongs((list) => list.filter((song) => !ids.includes(song.id)));
   };
 
   return {

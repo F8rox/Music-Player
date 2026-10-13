@@ -114,13 +114,14 @@ const PlayerState = ({ library, children }) => {
     importing: library.busy,
     importFiles: library.add,
     clearImports: library.clearImports,
-    removeFromLibrary: async (songId) => {
-      const nextQueue = Q.removeSong(queue, songId);
+    // ids: an array of song ids (one for the song menu, many from select mode).
+    removeFromLibrary: async (ids) => {
+      const nextQueue = ids.reduce(Q.removeSong, queue);
       setQueue(nextQueue);
       if (!nextQueue.currentQid) setIsPlaying(false);
-      playlistState.forgetSong(songId);
-      await library.remove(songId);
-      notify("Removed from your library");
+      ids.forEach(playlistState.forgetSong);
+      await library.remove(ids);
+      notify(ids.length === 1 ? "Removed from your library" : `Removed ${ids.length} songs from your library`);
     },
     queue,
     currentQid: queue.currentQid,

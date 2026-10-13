@@ -2,6 +2,7 @@ import { formatTime } from "../lib/format";
 import { keyOf } from "../lib/key";
 import { tempoOf } from "../lib/tempo";
 import { useMusic } from "../state/useMusic";
+import { Cover } from "./Cover";
 
 // undefined = still probing, null = file failed to load.
 const durationLabel = (duration) => {
@@ -30,10 +31,12 @@ const AnalysisInfo = ({ songId }) => {
 };
 
 // `actions` sits beside the play button: buttons can't be nested inside buttons.
-export const SongRow = ({ song, index, duration, active, onPlay, actions, note }) => (
-  <div className={`song-row${active ? " active" : ""}`}>
+export const SongRow = ({ song, index, duration, active, onPlay, actions, note, leading, selected }) => (
+  <div className={`song-row${active ? " active" : ""}${selected ? " selected" : ""}`}>
+    {leading}
     <button type="button" className="song-play" onClick={onPlay}>
       <span className="song-index" aria-hidden="true">{active ? "♪" : index + 1}</span>
+      <Cover song={song} />
       <span className="song-text">
         <span className="song-title">{song.title}</span>
         <span className="song-artist">

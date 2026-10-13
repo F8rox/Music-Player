@@ -2,6 +2,7 @@ import { Icon } from "./Icon";
 import { keyOf } from "../lib/key";
 import { tempoOf } from "../lib/tempo";
 import { useMusic } from "../state/useMusic";
+import { Cover } from "./Cover";
 import { ImportButton } from "./ImportButton";
 
 // The editorial top of All Songs: what's playing, big, with a glow tinted by the track's energy.
@@ -25,7 +26,8 @@ export const NowPlayingHero = () => {
   const bpm = tempoOf(analysisOf(currentTrack.id));
   const key = keyOf(analysisOf(currentTrack.id));
   return (
-    <section className={`hero hero-energy-${level}`}>
+    <section className={`hero hero-with-art hero-energy-${level}`}>
+      <span className="hero-art"><Cover song={currentTrack} size="lg" eager /></span>
       <p className="hero-label">{isPlaying ? "Now playing" : "Paused"}</p>
       <h1 className="hero-title">{currentTrack.title}</h1>
       <p className="hero-artist">

@@ -216,7 +216,7 @@ h2 {
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: 2rem 1fr auto auto;
+  grid-template-columns: 2rem 2.75rem 1fr auto auto;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
@@ -324,6 +324,84 @@ h2 {
   background: var(--surface-raised);
   color: var(--text);
   font-weight: 600;
+}
+
+/* ---------- Album art and selecting ---------- */
+.cover {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+.cover img,
+.cover-tile {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cover img {
+  object-fit: cover;
+}
+
+.cover-tile {
+  display: grid;
+  place-items: center;
+  color: var(--bg);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.cover-lg {
+  width: var(--cover-lg);
+  height: var(--cover-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+}
+
+.cover-lg .cover-tile {
+  font-size: 4.5rem;
+}
+
+.hero {
+  --cover-lg: clamp(150px, 22vw, 260px);
+}
+
+.hero-with-art {
+  min-height: calc(var(--cover-lg) + 2 * var(--space-6));
+  padding-right: calc(var(--cover-lg) + 2 * var(--space-8));
+}
+
+.hero-art {
+  position: absolute;
+  top: 50%;
+  right: var(--space-6);
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.select-box {
+  width: 20px;
+  height: 20px;
+  margin-left: var(--space-3);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.select-count {
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.song-row.selected {
+  background: var(--surface-raised);
+  border-color: var(--accent);
 }
 
 /* ---------- Vibe map ---------- */
@@ -774,9 +852,14 @@ h2 {
     padding: var(--space-4);
   }
 
-  .hero {
+  .hero,
+  .hero-with-art {
     min-height: 0;
     padding: var(--space-5);
+  }
+
+  .hero-art {
+    display: none; /* the dock and the rows already show the cover on a phone */
   }
 
   .hero-title {
@@ -789,7 +872,7 @@ h2 {
   }
 
   .song-play {
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 2.75rem 1fr auto auto;
     gap: var(--space-2);
     padding: var(--space-3);
   }
@@ -931,7 +1014,8 @@ h2 {
 }
 
 .primary-btn:disabled,
-.secondary-btn:disabled {
+.secondary-btn:disabled,
+.danger-btn:disabled {
   opacity: 0.5;
   cursor: default;
 }
@@ -1275,8 +1359,16 @@ h2 {
   overflow: hidden; /* clips the visualiser to its own area */
   align-self: stretch;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.track-text {
+  min-width: 0;
+}
+
+.track-info .cover {
+  position: relative; /* above the visualiser canvas */
 }
 
 .track-info p {

@@ -11,6 +11,31 @@ const ids = () => {
 const songsOf = (queue) => queue.items.map((item) => item.songId);
 const build = (start = 0) => fromList(["a", "b", "c"], start, ids());
 
+describe("removing several songs at once", () => {
+  const five = () => fromList(["a", "b", "c", "d", "e"], 1, ids());
+  const removeAll = (queue, songIds) => songIds.reduce(removeSong, queue);
+
+  it("moves to the next remaining song when the playing one and the one after it both go", () => {
+    const queue = removeAll(five(), ["b", "c"]);
+    expect(songsOf(queue)).toEqual(["a", "d", "e"]);
+    expect(current(queue).songId).toBe("d");
+  });
+
+  it("keeps the playing song when others go, and stops when nothing is left", () => {
+    const queue = removeAll(five(), ["a", "d"]);
+    expect(songsOf(queue)).toEqual(["b", "c", "e"]);
+    expect(current(queue).songId).toBe("b");
+    const none = removeAll(five(), ["a", "b", "c", "d", "e"]);
+    expect(none.items).toEqual([]);
+    expect(none.currentQid).toBeNull();
+  });
+
+  it("ignores ids that are not in the queue", () => {
+    const queue = five();
+    expect(removeAll(queue, ["x", "y"])).toBe(queue);
+  });
+});
+
 describe("fromRadio", () => {
   it("makes the picks the whole queue, seed current and first, each with its reason", () => {
     const queue = fromRadio([{ songId: "a", reason: "Radio start" }, { songId: "b", reason: "Same key" }], ids());
