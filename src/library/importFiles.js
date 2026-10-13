@@ -90,12 +90,17 @@ export const importFile = async (file) => {
   }
 };
 
-// Chromium only: collects audio files from a picked folder, recursively.
+// Chromium only: collects audio and .lrc files from a picked folder, recursively. An entry that can't be
+// read (for example a OneDrive file that isn't downloaded) is skipped, not allowed to stop the scan.
 export const filesFromDirectory = async (dir) => {
   const files = [];
   for await (const entry of dir.values()) {
-    if (entry.kind === "directory") files.push(...(await filesFromDirectory(entry)));
-    else if (isAudioName(entry.name) || isLrcName(entry.name)) files.push(await entry.getFile());
+    try {
+      if (entry.kind === "directory") files.push(...(await filesFromDirectory(entry)));
+      else if (isAudioName(entry.name) || isLrcName(entry.name)) files.push(await entry.getFile());
+    } catch {
+      // skipped
+    }
   }
   return files;
 };

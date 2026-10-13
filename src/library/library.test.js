@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
 import { set, createStore } from "idb-keyval";
 import { addSong, deleteSong, getBlob, getCover, getLyrics, hasSong, listAnalysis, listSongs, putAnalysis, putLyrics, validAnalysis, validSong } from "./db";
-import { checkFile, readLyrics } from "./importFiles";
+import { checkFile, filesFromDirectory, readLyrics } from "./importFiles";
 
 const id = (n) => "u:" + String(n).repeat(64).slice(0, 64);
 const record = (n, extra = {}) => ({
@@ -67,6 +67,27 @@ describe("checkFile", () => {
 
   it("rejects files over 100 MB", () => {
     expect(checkFile(file("a.mp3", "audio/mpeg", 101 * 1024 * 1024))).toBe("too-big");
+  });
+});
+
+describe("filesFromDirectory", () => {
+  const file = (name) => ({ kind: "file", name, getFile: async () => ({ name }) });
+  const dir = (...entries) => ({ kind: "directory", values: async function* () { yield* entries; } });
+  const names = async (handle) => (await filesFromDirectory(handle)).map((f) => f.name).sort();
+
+  it("collects audio and .lrc files from the folder and its sub-folders, and ignores the rest", async () => {
+    const handle = dir(file("a.mp3"), file("cover.jpg"), file("a.lrc"), dir(file("b.FLAC"), file("notes.txt"), dir(file("c.m4a"))));
+    expect(await names(handle)).toEqual(["a.lrc", "a.mp3", "b.FLAC", "c.m4a"]);
+  });
+
+  it("skips an entry that can't be read and keeps going", async () => {
+    const broken = { kind: "file", name: "online-only.mp3", getFile: async () => { throw new DOMException("not downloaded", "NotReadableError"); } };
+    const brokenDir = { kind: "directory", values: () => ({ [Symbol.asyncIterator]: () => ({ next: async () => { throw new DOMException("denied", "NotAllowedError"); } }) }) };
+    expect(await names(dir(file("a.mp3"), broken, brokenDir, file("b.wav")))).toEqual(["a.mp3", "b.wav"]);
+  });
+
+  it("returns [] for an empty folder", async () => {
+    expect(await names(dir())).toEqual([]);
   });
 });
 
